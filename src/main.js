@@ -26,7 +26,6 @@ const filtersDataString = filtersData.map(createFilterMarkup).join(``);
 const filtersContainer = document.querySelector(`.filter`);
 filtersContainer.innerHTML = filtersDataString;
 
-
 //  CARDS
 const fakeCardsData = new Array(7).fill(null);
 const createCardMarkup = () => `<article class="card card--pink card--repeat">
@@ -319,11 +318,23 @@ It is example of repeating task. It marks by wave.</textarea
                   <button class="card__delete" type="button">delete</button>
                 </div>
               </div>
-            </form></article>`;
-const cardsDataString = fakeCardsData.map(createCardMarkup).join(``);
+</form></article>`;
+
+const cardsMarkupString = fakeCardsData.map(createCardMarkup).join(``);
 
 const cardsContainer = document.querySelector(`.board__tasks`);
-cardsContainer.innerHTML = cardsDataString;
-
+cardsContainer.innerHTML = cardsMarkupString;
 
 // EVENT HANDLERS
+
+filtersContainer.addEventListener(`click`, function(event) {
+  if (event.target.classList.contains(`filter__input`)) {
+    const min = 1;
+    const max = 10;
+    const randomCount = Math.floor(Math.random() * (max - min + 1)) + min;
+    const nawFakeCardsData = new Array(randomCount).fill(null);
+
+    const newcardsMarkupString = nawFakeCardsData.map(createCardMarkup).join(``);
+    cardsContainer.innerHTML = newcardsMarkupString;
+  }
+})
