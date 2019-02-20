@@ -1,7 +1,7 @@
 'use strict';
 
-//  FILTERS
-const filtersData = [
+const INITIAL_CARDS_LENGTH = 7;
+const FILTERS_DATA = [
   {name: `all`, amount: 115},
   {name: `overdue`, amount: 0},
   {name: `today`, amount: 0},
@@ -10,6 +10,15 @@ const filtersData = [
   {name: `tags`, amount: 6},
   {name: `archive`, amount: 115}
 ];
+const RandomRange = {
+  MIN: 1,
+  MAX: 10
+};
+const filtersContainer = document.querySelector(`.filter`);
+const cardsContainer = document.querySelector(`.board__tasks`);
+
+const makeRandomCount = (max, min) => Math.floor(Math.random() * (max - min + 1)) + min;
+
 const createFilterMarkup = (filter) => `<input
     type="radio"
     id="filter__${filter.name}"
@@ -22,62 +31,27 @@ const createFilterMarkup = (filter) => `<input
     ${filter.name} <span class="filter__${filter.name}-count">${filter.amount}</span></label
   >`;
 
-const filtersDataString = filtersData.map(createFilterMarkup).join(``);
-const filtersContainer = document.querySelector(`.filter`);
+const filtersDataString = FILTERS_DATA.map(createFilterMarkup).join(``);
 filtersContainer.innerHTML = filtersDataString;
 
-//  CARDS
-const fakeCardsData = new Array(7).fill(null);
-const createCardMarkup = () => `<article class="card card--pink card--repeat">
-             <form class="card__form" method="get">
-              <div class="card__inner">
-                <div class="card__control">
-                  <button type="button" class="card__btn card__btn--edit">
-                    edit
-                  </button>
-                  <button type="button" class="card__btn card__btn--archive">
-                    archive
-                  </button>
-                  <button
-                    type="button"
-                    class="card__btn card__btn--favorites card__btn--disabled"
-                  >
-                    favorites
-                  </button>
-                </div>
+const fakeCardsData = new Array(INITIAL_CARDS_LENGTH).fill({});
 
-                <div class="card__color-bar">
-                  <svg class="card__color-bar-wave" width="100%" height="10">
-                    <use xlink:href="#wave"></use>
-                  </svg>
-                </div>
-
-                <div class="card__textarea-wrap">
-                  <label>
-                    <textarea
-                      class="card__text"
-                      placeholder="Start typing your text here..."
-                      name="text"
-                    >
-It is example of repeating task. It marks by wave.</textarea
-                    >
-                  </label>
-                </div>
-
-                <div class="card__settings">
+const createCardDetailsAndSettings = () => {
+  return `<div class="card__settings">
                   <div class="card__details">
                     <div class="card__dates">
                       <button class="card__date-deadline-toggle" type="button">
-                        date: <span class="card__date-status">no</span>
+                        date: <span class="card__date-status">yes</span>
                       </button>
 
-                      <fieldset class="card__date-deadline" disabled>
+                      <fieldset class="card__date-deadline">
                         <label class="card__input-deadline-wrap">
                           <input
                             class="card__date"
                             type="text"
                             placeholder="23 September"
                             name="date"
+                            value="23 September"
                           />
                         </label>
                         <label class="card__input-deadline-wrap">
@@ -86,66 +60,67 @@ It is example of repeating task. It marks by wave.</textarea
                             type="text"
                             placeholder="11:15 PM"
                             name="time"
+                            value="11:15 PM"
                           />
                         </label>
                       </fieldset>
 
                       <button class="card__repeat-toggle" type="button">
-                        repeat:<span class="card__repeat-status">no</span>
+                        repeat:<span class="card__repeat-status">yes</span>
                       </button>
 
-                      <fieldset class="card__repeat-days" disabled>
+                      <fieldset class="card__repeat-days">
                         <div class="card__repeat-days-inner">
                           <input
                             class="visually-hidden card__repeat-day-input"
                             type="checkbox"
-                            id="repeat-mo-2"
+                            id="repeat-mo-4"
                             name="repeat"
                             value="mo"
                           />
-                          <label class="card__repeat-day" for="repeat-mo-2"
+                          <label class="card__repeat-day" for="repeat-mo-4"
                             >mo</label
                           >
                           <input
                             class="visually-hidden card__repeat-day-input"
                             type="checkbox"
-                            id="repeat-tu-2"
+                            id="repeat-tu-4"
                             name="repeat"
                             value="tu"
                             checked
                           />
-                          <label class="card__repeat-day" for="repeat-tu-2"
+                          <label class="card__repeat-day" for="repeat-tu-4"
                             >tu</label
                           >
                           <input
                             class="visually-hidden card__repeat-day-input"
                             type="checkbox"
-                            id="repeat-we-2"
+                            id="repeat-we-4"
                             name="repeat"
                             value="we"
                           />
-                          <label class="card__repeat-day" for="repeat-we-2"
+                          <label class="card__repeat-day" for="repeat-we-4"
                             >we</label
                           >
                           <input
                             class="visually-hidden card__repeat-day-input"
                             type="checkbox"
-                            id="repeat-th-2"
+                            id="repeat-th-4"
                             name="repeat"
                             value="th"
                           />
-                          <label class="card__repeat-day" for="repeat-th-2"
+                          <label class="card__repeat-day" for="repeat-th-4"
                             >th</label
                           >
                           <input
                             class="visually-hidden card__repeat-day-input"
                             type="checkbox"
-                            id="repeat-fr-2"
+                            id="repeat-fr-4"
                             name="repeat"
                             value="fr"
                             checked
                           />
-                          <label class="card__repeat-day" for="repeat-fr-2"
+                          <label class="card__repeat-day" for="repeat-fr-4"
                             >fr</label
                           >
                           <input
@@ -153,20 +128,20 @@ It is example of repeating task. It marks by wave.</textarea
                             type="checkbox"
                             name="repeat"
                             value="sa"
-                            id="repeat-sa-2"
+                            id="repeat-sa-4"
                           />
-                          <label class="card__repeat-day" for="repeat-sa-2"
+                          <label class="card__repeat-day" for="repeat-sa-4"
                             >sa</label
                           >
                           <input
                             class="visually-hidden card__repeat-day-input"
                             type="checkbox"
-                            id="repeat-su-2"
+                            id="repeat-su-4"
                             name="repeat"
                             value="su"
                             checked
                           />
-                          <label class="card__repeat-day" for="repeat-su-2"
+                          <label class="card__repeat-day" for="repeat-su-4"
                             >su</label
                           >
                         </div>
@@ -232,14 +207,14 @@ It is example of repeating task. It marks by wave.</textarea
                     </div>
                   </div>
 
-                  <label class="card__img-wrap card__img-wrap--empty">
+                  <label class="card__img-wrap">
                     <input
                       type="file"
                       class="card__img-input visually-hidden"
                       name="img"
                     />
                     <img
-                      src="img/add-photo.svg"
+                      src="img/sample-img.jpg"
                       alt="task picture"
                       class="card__img"
                     />
@@ -250,62 +225,62 @@ It is example of repeating task. It marks by wave.</textarea
                     <div class="card__colors-wrap">
                       <input
                         type="radio"
-                        id="color-black-2"
+                        id="color-black-4"
                         class="card__color-input card__color-input--black visually-hidden"
                         name="color"
                         value="black"
                       />
                       <label
-                        for="color-black-2"
+                        for="color-black-4"
                         class="card__color card__color--black"
                         >black</label
                       >
                       <input
                         type="radio"
-                        id="color-yellow-2"
+                        id="color-yellow-4"
                         class="card__color-input card__color-input--yellow visually-hidden"
                         name="color"
                         value="yellow"
+                        checked
                       />
                       <label
-                        for="color-yellow-2"
+                        for="color-yellow-4"
                         class="card__color card__color--yellow"
                         >yellow</label
                       >
                       <input
                         type="radio"
-                        id="color-blue-2"
+                        id="color-blue-4"
                         class="card__color-input card__color-input--blue visually-hidden"
                         name="color"
                         value="blue"
                       />
                       <label
-                        for="color-blue-2"
+                        for="color-blue-4"
                         class="card__color card__color--blue"
                         >blue</label
                       >
                       <input
                         type="radio"
-                        id="color-green-2"
+                        id="color-green-4"
                         class="card__color-input card__color-input--green visually-hidden"
                         name="color"
                         value="green"
                       />
                       <label
-                        for="color-green-2"
+                        for="color-green-4"
                         class="card__color card__color--green"
                         >green</label
                       >
                       <input
                         type="radio"
-                        id="color-pink-2"
+                        id="color-pink-4"
                         class="card__color-input card__color-input--pink visually-hidden"
                         name="color"
                         value="pink"
-                        checked
                       />
                       <label
-                        for="color-pink-2"
+                        for="color-pink-4"
                         class="card__color card__color--pink"
                         >pink</label
                       >
@@ -316,25 +291,61 @@ It is example of repeating task. It marks by wave.</textarea
                 <div class="card__status-btns">
                   <button class="card__save" type="submit">save</button>
                   <button class="card__delete" type="button">delete</button>
+                </div>`;
+};
+const createCardMarkup = (cardData) => {
+  const cardMarkup = ` <article class="card card--yellow card--repeat">
+            <form class="card__form" method="get">
+              <div class="card__inner">
+                <div class="card__control">
+                  <button type="button" class="card__btn card__btn--edit">
+                    edit
+                  </button>
+                  <button type="button" class="card__btn card__btn--archive">
+                    archive
+                  </button>
+                  <button
+                    type="button"
+                    class="card__btn card__btn--favorites card__btn--disabled"
+                  >
+                    favorites
+                  </button>
                 </div>
+
+                <div class="card__color-bar">
+                  <svg class="card__color-bar-wave" width="100%" height="10">
+                    <use xlink:href="#wave"></use>
+                  </svg>
+                </div>
+
+                <div class="card__textarea-wrap">
+                  <label>
+                    <textarea
+                      class="card__text"
+                      placeholder="Start typing your text here..."
+                      name="text"
+                    >
+Here is a card with filled data</textarea
+                    >
+                  </label>
+                </div>
+                ${cardData.details ? createCardDetailsAndSettings(cardData.details) : ``}
               </div>
-</form></article>`;
+            </form>
+          </article>`;
+
+  return cardMarkup;
+};
 
 const cardsMarkupString = fakeCardsData.map(createCardMarkup).join(``);
-
-const cardsContainer = document.querySelector(`.board__tasks`);
 cardsContainer.innerHTML = cardsMarkupString;
 
-// EVENT HANDLERS
-
-filtersContainer.addEventListener(`click`, function(event) {
+filtersContainer.addEventListener(`click`, function (event) {
   if (event.target.classList.contains(`filter__input`)) {
-    const min = 1;
-    const max = 10;
-    const randomCount = Math.floor(Math.random() * (max - min + 1)) + min;
-    const nawFakeCardsData = new Array(randomCount).fill(null);
+    const newFakeCardsData = new Array(makeRandomCount(RandomRange.MIN, RandomRange.MAX)).fill({});
 
-    const newcardsMarkupString = nawFakeCardsData.map(createCardMarkup).join(``);
+    const newcardsMarkupString = newFakeCardsData.map(createCardMarkup).join(``);
     cardsContainer.innerHTML = newcardsMarkupString;
   }
-})
+});
+
