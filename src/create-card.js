@@ -1,4 +1,4 @@
-const createCardDetailsAndSettings = () => {
+const createCardDetailsAndSettings = (data) => {
   return `<div class="card__settings">
             <div class="card__details">
               <div class="card__dates">
@@ -256,7 +256,7 @@ const createCardDetailsAndSettings = () => {
           </div>`;
 };
 
-export default (cardData) => ` <article class="card card--yellow card--repeat">
+export default (cardData) => ` <article class="card card--${cardData.color} card--repeat">
             <form class="card__form" method="get">
               <div class="card__inner">
                 <div class="card__control">

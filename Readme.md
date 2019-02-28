@@ -1,7 +1,7 @@
 # Личный проект «Менеджер задач» [![Build status][travis-image]][travis-url]
 
-* Студент: [Кристина Гордеева](https://up.htmlacademy.ru/ecmascript/8/user/987507).
-* Наставник: `Неизвестно`.
+* Студент: [Кристина Гордеева](https://htmlacademy.ru/profile/id987507).
+* Наставник: `[Артем Рудов](https://htmlacademy.ru/profile/artrudov).
 
 ---
 

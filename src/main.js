@@ -1,5 +1,6 @@
 import createFilterMarkup from './create-filter.js';
-import createCardMarkup from './create-card.js';
+import createCard from './create-card.js';
+import getTasksData from './get-tasks-data.js';
 
 const INITIAL_CARDS_LENGTH = 7;
 const FILTERS_DATA = [
@@ -23,16 +24,17 @@ const makeRandomCount = (max, min) => Math.floor(Math.random() * (max - min + 1)
 const filtersDataString = FILTERS_DATA.map(createFilterMarkup).join(``);
 filtersContainer.innerHTML = filtersDataString;
 
-const fakeCardsData = new Array(INITIAL_CARDS_LENGTH).fill({});
+const tasksData = getTasksData(INITIAL_CARDS_LENGTH);
 
-const cardsMarkupString = fakeCardsData.map(createCardMarkup).join(``);
+const cardsMarkupString = tasksData.map(createCard).join(``);
 cardsContainer.innerHTML = cardsMarkupString;
 
 filtersContainer.addEventListener(`click`, function (event) {
   if (event.target.classList.contains(`filter__input`)) {
-    const newFakeCardsData = new Array(makeRandomCount(RandomRange.MIN, RandomRange.MAX)).fill({});
+    const newTasksCount = makeRandomCount(RandomRange.MIN, RandomRange.MAX);
+    const newTasksData = getTasksData(newTasksCount);
 
-    const newcardsMarkupString = newFakeCardsData.map(createCardMarkup).join(``);
+    const newcardsMarkupString = newTasksData.map(createCard).join(``);
     cardsContainer.innerHTML = newcardsMarkupString;
   }
 });
