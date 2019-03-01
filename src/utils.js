@@ -1,4 +1,5 @@
 export default {
+  getRandomBoolean: () => Math.random() >= 0.5,
   getRandomArrayElement: (myArray) => myArray[Math.floor(Math.random() * myArray.length)],
   makeShuffledArray: (arr) => {
     const newArr = [...arr];

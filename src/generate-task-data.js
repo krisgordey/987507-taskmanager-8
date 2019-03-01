@@ -5,8 +5,9 @@ const mockData = {
     `Изучить теорию`,
     `Сделать домашку`,
     `Пройти интенсив на соточку`,
+    `Поплакать`,
+    `Посмеяться`
   ],
-  dueDate: Date.now() + 1 + Math.floor(Math.random() * 7) * 24 * 60 * 60 * 1000,
   tags: new Set([
     `homework`,
     `theory`,
@@ -14,7 +15,6 @@ const mockData = {
     `intensive`,
     `keks`
   ]),
-  picture: `http://picsum.photos/100/100?r=${Math.random()}`,
   color: [
     `black`,
     `yellow`,
@@ -23,16 +23,14 @@ const mockData = {
     `pink`
   ],
   repeatingDays: {
-    'mo': false,
-    'tu': false,
-    'we': false,
-    'th': false,
-    'fr': false,
-    'sa': false,
-    'su': false,
+    'Mo': false,
+    'Tu': false,
+    'We': false,
+    'Th': false,
+    'Fr': false,
+    'Sa': false,
+    'Su': false,
   },
-  isFavorite: true,
-  isDone: true
 };
 
 const generateRandomRepeatingDays = (obj) => {
@@ -52,16 +50,26 @@ const generateRandomTags = (set) => {
   return newArr;
 };
 
+const generateDueDate = () => {
+  let randomDays = Math.floor(Math.random() * 7) * 24 * Math.floor(Math.random() * 60) * Math.floor(Math.random() * 60) * 1000;
+  const plusOrMinusDays = utils.getRandomBoolean() ? randomDays : -randomDays;
+  return new Date(Date.now() + 1 + plusOrMinusDays);
+};
+
 export default () => {
+  const isRepeating = utils.getRandomBoolean();
+  const repeatingDays = isRepeating ? generateRandomRepeatingDays(mockData.repeatingDays) : null;
+  const dueDate = !isRepeating ? generateDueDate() : null;
   return {
     title: utils.getRandomArrayElement(mockData.title),
     picture: `http://picsum.photos/100/100?r=${Math.random()}`,
     tags: generateRandomTags(mockData.tags),
-    dueDate: mockData.dueDate,
+    dueDate,
     color: utils.getRandomArrayElement(mockData.color),
-    repeatingDays: generateRandomRepeatingDays(mockData.repeatingDays),
-    isFavorite: Math.random() >= 0.5,
-    isDone: Math.random() >= 0.5
+    repeatingDays,
+    isFavorite: utils.getRandomBoolean(),
+    isDone: utils.getRandomBoolean(),
+    isRepeating,
   };
 };
 
