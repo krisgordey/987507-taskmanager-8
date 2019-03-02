@@ -1,5 +1,8 @@
 import utils from './utils.js';
 
+const TAGS_LIMIT = 4;
+const WEEK_IN_MILLISECONDS = 604800000;
+const HOUR_IN_MILLISECONDS = 3600000;
 const mockData = {
   title: [
     `Изучить теорию`,
@@ -22,43 +25,22 @@ const mockData = {
     `green`,
     `pink`
   ],
-  repeatingDays: {
-    'Mo': false,
-    'Tu': false,
-    'We': false,
-    'Th': false,
-    'Fr': false,
-    'Sa': false,
-    'Su': false,
-  },
+  days: [`Mo`, `Tu`, `We`, `Th`, `Fr`, `Sa`, `Su`],
 };
 
-const generateRandomRepeatingDays = (obj) => {
-  const newObj = {...obj};
+const generateRepeatingDays = (days) => days.map((day) => [day, utils.getRandomBoolean()]);
 
-  for (let key of Object.keys(newObj)) {
-    newObj[key] = Math.random() >= 0.5;
-  }
-
-  return newObj;
-};
-
-const generateRandomTags = (set) => {
-  let newArr = [...set];
-
-  newArr = utils.makeShuffledArray(newArr).slice(0, (Math.floor(Math.random() * (3 + 1))));
-  return newArr;
-};
+const generateRandomTags = (set) => utils.makeShuffledArray([...set]).slice(0, (Math.floor(Math.random() * TAGS_LIMIT)));
 
 const generateDueDate = () => {
-  let randomDays = Math.floor(Math.random() * 7) * 24 * Math.floor(Math.random() * 60) * Math.floor(Math.random() * 60) * 1000;
+  let randomDays = utils.getRandomInRange(HOUR_IN_MILLISECONDS, WEEK_IN_MILLISECONDS);
   const plusOrMinusDays = utils.getRandomBoolean() ? randomDays : -randomDays;
-  return new Date(Date.now() + 1 + plusOrMinusDays);
+  return new Date(Date.now() + plusOrMinusDays);
 };
 
 export default () => {
   const isRepeating = utils.getRandomBoolean();
-  const repeatingDays = isRepeating ? generateRandomRepeatingDays(mockData.repeatingDays) : null;
+  const repeatingDays = isRepeating ? generateRepeatingDays(mockData.days) : null;
   const dueDate = !isRepeating ? generateDueDate() : null;
   return {
     title: utils.getRandomArrayElement(mockData.title),

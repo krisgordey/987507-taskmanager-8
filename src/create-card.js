@@ -1,51 +1,28 @@
-const monthNames = [`January`, `February`, `March`, `April`, `May`, `June`,
+const MONTHS_NAMES = [`January`, `February`, `March`, `April`, `May`, `June`,
   `July`, `August`, `September`, `October`, `November`, `December`
 ];
 
-const isExpiredTask = (dueDate) => {
-  if (dueDate) {
-    return (Date.now() - dueDate.getTime()) > 0;
-  }
-  return false;
-};
+const isExpiredTask = (dueDate) => dueDate ? (Date.now() - dueDate.getTime()) > 0 : false;
 
-const formatAMPM = (date) => {
-  let hours = date.getHours();
-  let minutes = date.getMinutes();
-  let ampm = hours >= 12 ? `PM` : `AM`;
-  hours = hours % 12;
-  hours = hours ? hours : 12;
-  minutes = minutes < 10 ? `0` + minutes : minutes;
-  let strTime = hours + `:` + minutes + ` ` + ampm;
-  return strTime;
-};
+const formatAMPM = (date) => date.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`});
 
-const getRepeatingDaysMarkup = (obj) => {
-  const days = Object.keys(obj);
-  const daysMarkups = days.map(function (key) {
-    return `<input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-${key}-4" 
-      name="repeat" value="${key}" ${obj[key] === true ? `checked` : ``}>
-    <label class="card__repeat-day" for="repeat-${key}-4">${key}</label>`;
-  });
-  return daysMarkups.join(``);
-};
+const getRepeatingDaysMarkup = (days) => days.map((day) => `<input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-${day[0]}-4" 
+      name="repeat" value="${day[0]}" ${day[1] === true ? `checked` : ``}>
+    <label class="card__repeat-day" for="repeat-${day[0]}-4">${day[0]}</label>`
+).join(``);
 
-const getTags = (tagsSet) => {
-  const tags = [...tagsSet];
-  const tagsMarcups = tags.map(function (item) {
-    return `<span class="card__hashtag-inner">
-    <input type="hidden" name="hashtag" value="${item}"
-      class="card__hashtag-hidden-input"/>
-    <button type="button" class="card__hashtag-name">
-      ${item}
-    </button>
-    <button type="button" class="card__hashtag-delete">
-      delete
-    </button>
+const getTags = (tagsSet) => [...tagsSet].map(function (item) {
+  return `<span class="card__hashtag-inner">
+  <input type="hidden" name="hashtag" value="${item}"
+  class="card__hashtag-hidden-input"/>
+  <button type="button" class="card__hashtag-name">
+  ${item}
+  </button>
+  <button type="button" class="card__hashtag-delete">
+  delete
+  </button>
   </span>`;
-  });
-  return tagsMarcups.join(``);
-};
+}).join(``);
 
 export default (cardData) => ` <article class="card card--${cardData.color} card--edit 
 ${cardData.isRepeating ? `card--repeat` : ``} ${isExpiredTask(cardData.dueDate) ? `card--deadline` : ``}">
@@ -95,9 +72,9 @@ ${cardData.isRepeating ? `card--repeat` : ``} ${isExpiredTask(cardData.dueDate) 
                     <input
                       class="card__date"
                       type="text"
-                      placeholder="${cardData.dueDate.getDay() + 1} ${monthNames[cardData.dueDate.getMonth()]}"
+                      placeholder="${cardData.dueDate.getDay()} ${MONTHS_NAMES[cardData.dueDate.getMonth()]}"
                       name="date"
-                      value="${cardData.dueDate.getDate() + 1}  ${monthNames[cardData.dueDate.getMonth()]}"
+                      value="${cardData.dueDate.getDate()}  ${MONTHS_NAMES[cardData.dueDate.getMonth()]}"
                     />
                   </label>
                   <label class="card__input-deadline-wrap">
@@ -146,7 +123,7 @@ ${cardData.isRepeating ? `card--repeat` : ``} ${isExpiredTask(cardData.dueDate) 
                 name="img"
               />
               <img
-                src="img/sample-img.jpg"
+                src="${cardData.picture}"
                 alt="task picture"
                 class="card__img"
               />
