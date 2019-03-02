@@ -11,8 +11,7 @@ const getRepeatingDaysMarkup = (days) => days.map((day) => `<input class="visual
     <label class="card__repeat-day" for="repeat-${day[0]}-4">${day[0]}</label>`
 ).join(``);
 
-const getTags = (tagsSet) => [...tagsSet].map(function (item) {
-  return `<span class="card__hashtag-inner">
+const getTags = (tagsSet) => [...tagsSet].map(item => `<span class="card__hashtag-inner">
   <input type="hidden" name="hashtag" value="${item}"
   class="card__hashtag-hidden-input"/>
   <button type="button" class="card__hashtag-name">
@@ -21,8 +20,7 @@ const getTags = (tagsSet) => [...tagsSet].map(function (item) {
   <button type="button" class="card__hashtag-delete">
   delete
   </button>
-  </span>`;
-}).join(``);
+  </span>`).join(``);
 
 export default (cardData) => ` <article class="card card--${cardData.color} card--edit 
 ${cardData.isRepeating ? `card--repeat` : ``} ${isExpiredTask(cardData.dueDate) ? `card--deadline` : ``}">

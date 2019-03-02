@@ -34,21 +34,18 @@ const generateRandomTags = (set) => utils.makeShuffledArray([...set]).slice(0, (
 
 const generateDueDate = () => {
   let randomDays = utils.getRandomInRange(HOUR_IN_MILLISECONDS, WEEK_IN_MILLISECONDS);
-  const plusOrMinusDays = utils.getRandomBoolean() ? randomDays : -randomDays;
-  return new Date(Date.now() + plusOrMinusDays);
+  return new Date(Date.now() + (utils.getRandomBoolean() ? randomDays : -randomDays));
 };
 
 export default () => {
   const isRepeating = utils.getRandomBoolean();
-  const repeatingDays = isRepeating ? generateRepeatingDays(mockData.days) : null;
-  const dueDate = !isRepeating ? generateDueDate() : null;
   return {
     title: utils.getRandomArrayElement(mockData.title),
     picture: `http://picsum.photos/100/100?r=${Math.random()}`,
     tags: generateRandomTags(mockData.tags),
-    dueDate,
+    dueDate: !isRepeating ? generateDueDate() : null,
     color: utils.getRandomArrayElement(mockData.color),
-    repeatingDays,
+    repeatingDays: isRepeating ? generateRepeatingDays(mockData.days) : null,
     isFavorite: utils.getRandomBoolean(),
     isDone: utils.getRandomBoolean(),
     isRepeating,

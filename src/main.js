@@ -1,6 +1,6 @@
 import createFilterMarkup from './create-filter.js';
 import createCard from './create-card.js';
-import getTasksData from './get-tasks-data.js';
+import getTasks from './get-tasks.js';
 
 const INITIAL_CARDS_LENGTH = 7;
 const FILTERS_DATA = [
@@ -21,21 +21,18 @@ const cardsContainer = document.querySelector(`.board__tasks`);
 
 const makeRandomCount = (max, min) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-const filtersDataString = FILTERS_DATA.map(createFilterMarkup).join(``);
-filtersContainer.innerHTML = filtersDataString;
+filtersContainer.innerHTML = FILTERS_DATA.map(createFilterMarkup).join(``);
 
-const tasksData = getTasksData(INITIAL_CARDS_LENGTH);
+const taks = getTasks(INITIAL_CARDS_LENGTH);
 
-const cardsMarkupString = tasksData.map(createCard).join(``);
+const cardsMarkupString = taks.map(createCard).join(``);
 cardsContainer.innerHTML = cardsMarkupString;
 
 filtersContainer.addEventListener(`click`, function (event) {
   if (event.target.classList.contains(`filter__input`)) {
     const newTasksCount = makeRandomCount(RandomRange.MIN, RandomRange.MAX);
-    const newTasksData = getTasksData(newTasksCount);
-
-    const newcardsMarkupString = newTasksData.map(createCard).join(``);
-    cardsContainer.innerHTML = newcardsMarkupString;
+    const newTasks = getTasks(newTasksCount);
+    cardsContainer.innerHTML = newTasks.map(createCard).join(``);
   }
 });
 
