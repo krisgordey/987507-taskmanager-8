@@ -1,54 +1,51 @@
-import createFilterMarkup from './create-filter.js';
-import createCard from './create-card.js';
+import {INITIAL_CARDS_LENGTH, FILTERS_DATA} from './constants.js';
+import createFilter from './create-filter.js';
 import getTasks from './get-tasks.js';
 import Task from './task.js';
+import TaskEdit from './task-edit.js';
 
-
-const INITIAL_CARDS_LENGTH = 7;
-const FILTERS_DATA = [
-  {name: `all`, amount: 115},
-  {name: `overdue`, amount: 0},
-  {name: `today`, amount: 0},
-  {name: `favorites`, amount: 7},
-  {name: `repeating`, amount: 2},
-  {name: `tags`, amount: 6},
-  {name: `archive`, amount: 115}
-];
-const RandomRange = {
-  MIN: 1,
-  MAX: 10
-};
 const filtersContainer = document.querySelector(`.filter`);
-const cardsContainer = document.querySelector(`.board__tasks`);
+const tasksContainer = document.querySelector(`.board__tasks`);
 
-const makeRandomCount = (max, min) => Math.floor(Math.random() * (max - min + 1)) + min;
-
-filtersContainer.innerHTML = FILTERS_DATA.map(createFilterMarkup).join(``);
+filtersContainer.innerHTML = FILTERS_DATA.map(createFilter).join(``);
 
 const tasks = getTasks(INITIAL_CARDS_LENGTH);
 
-// const cardsMarkupString = tasks.map(createCard).join(``);
-// cardsContainer.innerHTML = cardsMarkupString;
-
-// test
 tasks.forEach((task) => {
-  const firstTask = new Task(task);
-  firstTask.render(cardsContainer);
+  const taskComponent = new Task(task);
+  const editTaskComponent = new TaskEdit(task);
+
+  tasksContainer.appendChild(taskComponent.render());
+
+  taskComponent.onEdit = () => {
+    editTaskComponent.render();
+    tasksContainer.replaceChild(editTaskComponent.element, taskComponent.element);
+    taskComponent.unrender();
+  };
+
+  editTaskComponent.onSubmit = () => {
+    taskComponent.render();
+    tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
+    editTaskComponent.unrender();
+  };
+
 });
 
-filtersContainer.addEventListener(`click`, function (event) {
-  if (event.target.classList.contains(`filter__input`)) {
-    const newTasksCount = makeRandomCount(RandomRange.MIN, RandomRange.MAX);
-    const newTasks = getTasks(newTasksCount);
-    cardsContainer.innerHTML = newTasks.map(createCard).join(``);
-  }
-});
-cardsContainer.addEventListener(`click`, function (event) {
-  if (event.target.classList.contains(`filter__input`)) {
-    const newTasksCount = makeRandomCount(RandomRange.MIN, RandomRange.MAX);
-    const newTasks = getTasks(newTasksCount);
-    cardsContainer.innerHTML = newTasks.map(createCard).join(``);
-  }
-});
+// Поддержка функциональности навигации не входит в задания первого этапа, и будет реализовываться после пятой недели обучения (информация от лектора).
+//
+// filtersContainer.addEventListener(`click`, function (event) {
+//   if (event.target.classList.contains(`filter__input`)) {
+//     const newTasksCount = utils.makeRandomCount(RandomRange.MIN, RandomRange.MAX);
+//     const newTasks = getTasks(newTasksCount);
+//     tasksContainer.innerHTML = newTasks.map(createCard).join(``);
+//   }
+// });
+// tasksContainer.addEventListener(`click`, function (event) {
+//   if (event.target.classList.contains(`filter__input`)) {
+//     const newTasksCount = utils.makeRandomCount(RandomRange.MIN, RandomRange.MAX);
+//     const newTasks = getTasks(newTasksCount);
+//     tasksContainer.innerHTML = newTasks.map(createCard).join(``);
+//   }
+// });
 
 

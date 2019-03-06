@@ -1,8 +1,5 @@
-import createElement from "./create-element.js";
-
-const MONTHS_NAMES = [`January`, `February`, `March`, `April`, `May`, `June`,
-  `July`, `August`, `September`, `October`, `November`, `December`
-];
+import utils from "./utils.js";
+import {MONTHS_NAMES} from './constants.js';
 
 export default class Task {
   constructor(data) {
@@ -13,10 +10,11 @@ export default class Task {
     this._picture = data.picture;
     this._repeatingDays = data.repeatingDays;
     this._isFavorite = data.isFavorite;
+
     this._element = null;
-    this._state = {
-      isEdit: false
-    };
+    this._onEdit = null;
+
+    this._onEditButtonClick = this._onEditButtonClick.bind(this);
   }
 
   _getTags(tagsSet) {
@@ -38,7 +36,7 @@ export default class Task {
   }
 
   _isRepeating() {
-    return this._repeatingDays.some((it) => it[1] === true);
+    return this._repeatingDays ? this._repeatingDays.some((it) => it[1] === true) : false;
   }
   _formatAMPM(date) {
     date.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`});
@@ -49,7 +47,7 @@ export default class Task {
   }
 
   get template() {
-    return `<article class="card card--${this._color} card--edit ${this._isRepeating() ? `card--repeat` : ``} ${this._isExpiredTask(this._dueDate) ? `card--deadline` : ``}">
+    return `<article class="card card--${this._color} ${this._isRepeating() ? `card--repeat` : ``} ${this._isExpiredTask(this._dueDate) ? `card--deadline` : ``}">
             <form class="card__form" method="get">
               <div class="card__inner">
                 <div class="card__control">
@@ -229,18 +227,37 @@ export default class Task {
             </form>
           </article>`;
   }
-  bind() {
-    this._element.querySelector(`.card__btn--edit`)
-      .addEventListener(`click`, this._onEditButtonClick.bind(this));
+
+  _onEditButtonClick() {
+    return typeof this._onEdit === `function` && this._onEdit();
   }
 
-  render(container) {
-    if (this._element) {
-      container.removeChild(this._element);
-      this._element = null;
-    }
+  get element() {
+    return this._element;
+  }
 
-    this._element = createElement(this.template);
-    container.appendChild(this._element);
+  set onEdit(fn) {
+    this._onEdit = fn;
+  }
+
+  bind() {
+    this._element.querySelector(`.card__btn--edit`)
+      .addEventListener(`click`, this._onEditButtonClick);
+  }
+
+  render() {
+    this._element = utils.createElement(this.template);
+    this.bind();
+    return this._element;
+  }
+
+  unbind() {
+    this._element.querySelector(`.card__btn--edit`)
+      .removeEventListener(`click`, this._onEditButtonClick);
+  }
+
+  unrender() {
+    this.unbind();
+    this._element = null;
   }
 }
