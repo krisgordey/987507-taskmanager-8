@@ -45,10 +45,9 @@ export default () => {
     tags: generateRandomTags(mockData.tags),
     dueDate: !isRepeating ? generateDueDate() : null,
     color: utils.getRandomArrayElement(mockData.color),
-    repeatingDays: isRepeating ? generateRepeatingDays(mockData.days) : null,
+    repeatingDays: isRepeating ? generateRepeatingDays(mockData.days) : [],
     isFavorite: utils.getRandomBoolean(),
     isDone: utils.getRandomBoolean(),
-    isRepeating,
   };
 };
 
