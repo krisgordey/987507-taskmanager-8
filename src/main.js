@@ -28,7 +28,6 @@ tasks.forEach((task) => {
     tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
     editTaskComponent.unrender();
   };
-
 });
 
 // Поддержка функциональности навигации не входит в задания первого этапа, и будет реализовываться после пятой недели обучения (информация от лектора).

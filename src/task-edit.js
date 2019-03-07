@@ -39,7 +39,7 @@ export default class TaskEdit {
     return this._repeatingDays ? this._repeatingDays.some((it) => it[1] === true) : false;
   }
   _formatAMPM(date) {
-    date.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`});
+    return date.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`});
   }
 
   _isExpiredTask(dueDate) {
@@ -94,7 +94,7 @@ export default class TaskEdit {
                     <input
                       class="card__date"
                       type="text"
-                      placeholder="${this._dueDate.getDay()} ${MONTHS_NAMES[this._dueDate.getMonth()]}"
+                      placeholder="${this._dueDate.getDate()} ${MONTHS_NAMES[this._dueDate.getMonth()]}"
                       name="date"
                       value="${this._dueDate.getDate()}  ${MONTHS_NAMES[this._dueDate.getMonth()]}"
                     />
@@ -241,24 +241,24 @@ export default class TaskEdit {
     this._onSubmit = fn;
   }
 
-  bind() {
+  addListeners() {
     this._element.querySelector(`.card__form`)
       .addEventListener(`submit`, this._onSubmitButtonClick);
   }
 
   render() {
     this._element = utils.createElement(this.template);
-    this.bind();
+    this.addListeners();
     return this._element;
   }
 
-  unbind() {
+  _removeListeners() {
     this._element.querySelector(`.card__form`)
       .removeEventListener(`submit`, this._onSubmitButtonClick);
   }
 
   unrender() {
-    this.unbind();
+    this._removeListeners();
     this._element = null;
   }
 }

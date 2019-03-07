@@ -39,7 +39,7 @@ export default class Task {
     return this._repeatingDays ? this._repeatingDays.some((it) => it[1] === true) : false;
   }
   _formatAMPM(date) {
-    date.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`});
+    return date.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`});
   }
 
   _isExpiredTask(dueDate) {
@@ -94,7 +94,7 @@ export default class Task {
                     <input
                       class="card__date"
                       type="text"
-                      placeholder="${this._dueDate.getDay()} ${MONTHS_NAMES[this._dueDate.getMonth()]}"
+                      placeholder="${this._dueDate.getDate()} ${MONTHS_NAMES[this._dueDate.getMonth()]}"
                       name="date"
                       value="${this._dueDate.getDate()}  ${MONTHS_NAMES[this._dueDate.getMonth()]}"
                     />
@@ -240,24 +240,24 @@ export default class Task {
     this._onEdit = fn;
   }
 
-  bind() {
+  _addListeners() {
     this._element.querySelector(`.card__btn--edit`)
       .addEventListener(`click`, this._onEditButtonClick);
   }
 
   render() {
     this._element = utils.createElement(this.template);
-    this.bind();
+    this._addListeners();
     return this._element;
   }
 
-  unbind() {
+  removeListeners() {
     this._element.querySelector(`.card__btn--edit`)
       .removeEventListener(`click`, this._onEditButtonClick);
   }
 
   unrender() {
-    this.unbind();
+    this.removeListeners();
     this._element = null;
   }
 }
