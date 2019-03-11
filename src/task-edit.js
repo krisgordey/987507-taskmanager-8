@@ -1,5 +1,5 @@
 import utils from "./utils.js";
-import {MONTHS_NAMES} from './constants.js';
+import {MONTHS_NAMES, KeyCodes} from './constants.js';
 
 export default class TaskEdit {
   constructor(data) {
@@ -13,8 +13,10 @@ export default class TaskEdit {
 
     this._element = null;
     this._onSubmit = null;
+    this._onClose = null;
 
-    this._onSubmitButtonClick = this._onSubmitButtonClick.bind(this);
+    this._onCloseCase = this._onCloseCase.bind(this);
+    this._onSubmitCase = this._onSubmitCase.bind(this);
   }
 
   _getTags(tagsSet) {
@@ -228,11 +230,6 @@ export default class TaskEdit {
           </article>`;
   }
 
-  _onSubmitButtonClick(evt) {
-    evt.preventDefault();
-    return typeof this._onSubmit === `function` && this._onSubmit();
-  }
-
   get element() {
     return this._element;
   }
@@ -240,21 +237,43 @@ export default class TaskEdit {
   set onSubmit(fn) {
     this._onSubmit = fn;
   }
+  set onClose(fn) {
+    this._onClose = fn;
+  }
+
+  _onSubmitCase(evt) {
+    evt.preventDefault();
+    return typeof this._onSubmit === `function` && this._onSubmit();
+  }
+
+  _onCloseCase(evt) {
+    if (
+      (evt.type === `click` && !this._element.contains(evt.target))
+      || (evt.type === `keydown` && evt.keyCode === KeyCodes.ESCAPE)
+    ) {
+      return typeof this._onClose === `function` && this._onClose();
+    }
+    return undefined;
+  }
 
   addListeners() {
     this._element.querySelector(`.card__form`)
-      .addEventListener(`submit`, this._onSubmitButtonClick);
-  }
-
-  render() {
-    this._element = utils.createElement(this.template);
-    this.addListeners();
-    return this._element;
+      .addEventListener(`submit`, this._onSubmitCase);
+    document.body.addEventListener(`click`, this._onCloseCase);
+    document.body.addEventListener(`keydown`, this._onCloseCase);
   }
 
   _removeListeners() {
     this._element.querySelector(`.card__form`)
-      .removeEventListener(`submit`, this._onSubmitButtonClick);
+      .removeEventListener(`submit`, this._onSubmitCase);
+    document.body.removeEventListener(`click`, this._onCloseCase);
+    document.body.removeEventListener(`keydown`, this._onCloseCase);
+  }
+
+  render() {
+    this._element = utils.createElement(this.template);
+    setTimeout(this.addListeners.bind(this), 0);
+    return this._element;
   }
 
   unrender() {

@@ -1,4 +1,8 @@
 export const INITIAL_CARDS_LENGTH = 7;
+export const KeyCodes = {
+  ENTER: 13,
+  ESCAPE: 27,
+};
 export const FILTERS_DATA = [
   {name: `all`, amount: 115},
   {name: `overdue`, amount: 0},
