@@ -48,7 +48,6 @@ export default () => {
     repeatingDays: isRepeating ? generateRepeatingDays(mockData.days) : null,
     isFavorite: utils.getRandomBoolean(),
     isDone: utils.getRandomBoolean(),
-    isRepeating,
   };
 };
 

@@ -14,4 +14,10 @@ export default {
     return newArr;
   },
   getRandomInRange: (min, max) => Math.floor(Math.random() * (max - min + 1)) + min,
+  createElement: (template) => {
+    const newElement = document.createElement(`div`);
+    newElement.innerHTML = template;
+    return newElement.firstChild;
+  },
+  makeRandomCount: (max, min) => Math.floor(Math.random() * (max - min + 1)) + min,
 };
