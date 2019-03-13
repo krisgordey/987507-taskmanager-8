@@ -11,8 +11,6 @@ filtersContainer.innerHTML = FILTERS_DATA.map(createFilter).join(``);
 
 const tasks = getTasks(INITIAL_CARDS_LENGTH);
 
-let isOpened = false;
-
 tasks.forEach((task) => {
   const taskComponent = new Task(task);
   const editTaskComponent = new TaskEdit(task);
@@ -20,26 +18,21 @@ tasks.forEach((task) => {
   tasksContainer.appendChild(taskComponent.render());
 
   taskComponent.onEdit = () => {
-    if (!isOpened) {
-      editTaskComponent.render();
-      tasksContainer.replaceChild(editTaskComponent.element, taskComponent.element);
-      taskComponent.unrender();
-      isOpened = true;
-    }
+    editTaskComponent.render();
+    tasksContainer.replaceChild(editTaskComponent.element, taskComponent.element);
+    taskComponent.unrender();
   };
 
   editTaskComponent.onSubmit = () => {
     taskComponent.render();
     tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
     editTaskComponent.unrender();
-    isOpened = false;
   };
 
   editTaskComponent.onClose = () => {
     taskComponent.render();
     tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
     editTaskComponent.unrender();
-    isOpened = false;
   };
 });
 
