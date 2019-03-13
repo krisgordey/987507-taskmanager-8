@@ -1,8 +1,9 @@
-import utils from "./utils.js";
 import {MONTHS_NAMES} from './constants.js';
+import Component from "./component";
 
-export default class Task {
+export default class Task extends Component {
   constructor(data) {
+    super();
     this._color = data.color;
     this._title = data.title;
     this._dueDate = data.dueDate;
@@ -10,8 +11,6 @@ export default class Task {
     this._picture = data.picture;
     this._repeatingDays = data.repeatingDays;
     this._isFavorite = data.isFavorite;
-
-    this._element = null;
     this._onEdit = null;
 
     this._onEditButtonClick = this._onEditButtonClick.bind(this);
@@ -232,32 +231,17 @@ export default class Task {
     return typeof this._onEdit === `function` && this._onEdit();
   }
 
-  get element() {
-    return this._element;
-  }
-
   set onEdit(fn) {
     this._onEdit = fn;
   }
 
-  _addListeners() {
+  addListeners() {
     this._element.querySelector(`.card__btn--edit`)
       .addEventListener(`click`, this._onEditButtonClick);
-  }
-
-  render() {
-    this._element = utils.createElement(this.template);
-    this._addListeners();
-    return this._element;
   }
 
   removeListeners() {
     this._element.querySelector(`.card__btn--edit`)
       .removeEventListener(`click`, this._onEditButtonClick);
-  }
-
-  unrender() {
-    this.removeListeners();
-    this._element = null;
   }
 }
