@@ -1,4 +1,3 @@
-import utils from "./utils.js";
 import {MONTHS_NAMES, KeyCodes} from './constants.js';
 import Component from "./component";
 
@@ -245,9 +244,10 @@ export default class TaskEdit extends Component {
 
   _onCloseCase(evt) {
     if (
-      (evt.type === `click` && !this._element.contains(evt.target))
+      (evt.type === `click` && this._element && !this._element.contains(evt.target))
       || (evt.type === `keydown` && evt.keyCode === KeyCodes.ESCAPE)
     ) {
+      evt.stopPropagation();
       return typeof this._onClose === `function` && this._onClose();
     }
     return undefined;
@@ -256,7 +256,7 @@ export default class TaskEdit extends Component {
   addListeners() {
     this._element.querySelector(`.card__form`)
       .addEventListener(`submit`, this._onSubmitCase);
-    document.body.addEventListener(`click`, this._onCloseCase);
+    document.body.addEventListener(`click`, this._onCloseCase, true);
     document.body.addEventListener(`keydown`, this._onCloseCase);
   }
 
@@ -265,11 +265,5 @@ export default class TaskEdit extends Component {
       .removeEventListener(`submit`, this._onSubmitCase);
     document.body.removeEventListener(`click`, this._onCloseCase);
     document.body.removeEventListener(`keydown`, this._onCloseCase);
-  }
-
-  render() {
-    this._element = utils.createElement(this.template);
-    setTimeout(this.addListeners.bind(this), 0);
-    return this._element;
   }
 }
