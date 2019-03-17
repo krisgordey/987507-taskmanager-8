@@ -20,6 +20,7 @@ export default class Component {
 
   render() {
     this._element = utils.createElement(this.template);
+    this.initState();
     this.addListeners();
     return this._element;
   }
@@ -27,9 +28,14 @@ export default class Component {
   unrender() {
     this.removeListeners();
     this._element = null;
+    this._state = {};
   }
 
   addListeners() {}
 
   removeListeners() {}
+
+  initState() {}
+
+  update() {}
 }

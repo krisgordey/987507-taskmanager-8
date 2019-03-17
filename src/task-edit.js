@@ -1,6 +1,14 @@
-import {MONTHS_NAMES, KeyCodes} from './constants.js';
+import {MONTHS_NAMES, KeyCodes, BUTTONS_COLORS, BLANK_REPEATED_DAYS} from './constants.js';
+import utils from "./utils";
 import Component from "./component";
 
+const colorClasses = {
+  blue: `card--blue`,
+  black: `card--black`,
+  yellow: `card--yellow`,
+  green: `card--green`,
+  pink: `card--pink`,
+};
 export default class TaskEdit extends Component {
   constructor(data) {
     super();
@@ -17,6 +25,14 @@ export default class TaskEdit extends Component {
 
     this._onCloseCase = this._onCloseCase.bind(this);
     this._onSubmitCase = this._onSubmitCase.bind(this);
+    this._onTitleChange = this._onTitleChange.bind(this);
+    this._onColorChange = this._onColorChange.bind(this);
+    this._onChangeRepeated = this._onChangeRepeated.bind(this);
+    this._onChangeRepeatedDay = this._onChangeRepeatedDay.bind(this);
+  }
+
+  initState() {
+    this._state.isRepeated = this._isRepeating();
   }
 
   _getTags(tagsSet) {
@@ -31,14 +47,37 @@ export default class TaskEdit extends Component {
     </button>
     </span>`).join(``);
   }
-  _getRepeatingDaysMarkup(days) {
-    return days.map((day) => `<input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-${day[0]}-4" 
+
+  _getRepeatingDaysMarkup() {
+    const daysInputsMarkup = this._repeatingDays.map((day) => `<input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-${day[0]}-4" 
       name="repeat" value="${day[0]}" ${day[1] === true ? `checked` : ``}>
     <label class="card__repeat-day" for="repeat-${day[0]}-4">${day[0]}</label>`).join(``);
+
+    return `<fieldset class="card__repeat-days">
+              <div class="card__repeat-days-inner">
+                ${daysInputsMarkup}
+              </div>
+            </fieldset>`;
+  }
+
+  _getColorButtonsMarkup(colors) {
+    return colors.map((color) => `<input
+                  type="radio"
+                  id="color-${color}-4"
+                  class="card__color-input card__color-input--${color} visually-hidden"
+                  name="color"
+                  value="${color}"
+                  ${color === this._color ? `checked` : ``}
+                />
+                <label
+                  for="color-${color}-4"
+                  class="card__color card__color--${color}"
+                  >${color}</label
+                >`).join(``);
   }
 
   _isRepeating() {
-    return this._repeatingDays ? this._repeatingDays.some((it) => it[1] === true) : false;
+    return this._repeatingDays.some((it) => it[1] === true);
   }
   _formatAMPM(date) {
     return date.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`});
@@ -49,7 +88,7 @@ export default class TaskEdit extends Component {
   }
 
   get template() {
-    return `<article class="card card--edit card--${this._color} ${this._isRepeating() ? `card--repeat` : ``} ${this._isExpiredTask(this._dueDate) ? `card--deadline` : ``}">
+    return `<article class="card card--edit ${colorClasses[this._color]} ${this._isRepeating() ? `card--repeat` : ``} ${this._isExpiredTask(this._dueDate) ? `card--deadline` : ``}">
             <form class="card__form" method="get">
               <div class="card__inner">
                 <div class="card__control">
@@ -113,15 +152,9 @@ export default class TaskEdit extends Component {
                 </fieldset>` : ``}
     
                 <button class="card__repeat-toggle" type="button">
-                  repeat:<span class="card__repeat-status">${this._isRepeating() ? `yes` : `no`}</span>
+                  repeat:<span class="card__repeat-status">${this._state.isRepeated ? `yes` : `no`}</span>
                 </button>
-               
-                
-                ${this._isRepeating() ? `<fieldset class="card__repeat-days">
-                  <div class="card__repeat-days-inner">
-                    ${this._getRepeatingDaysMarkup(this._repeatingDays)}
-                  </div>
-                </fieldset>` : ``}
+                ${this._state.isRepeated ? `${this._getRepeatingDaysMarkup()}` : ``}
                </div>
     
               <div class="card__hashtag">
@@ -156,67 +189,7 @@ export default class TaskEdit extends Component {
             <div class="card__colors-inner">
               <h3 class="card__colors-title">Color</h3>
               <div class="card__colors-wrap">
-                <input
-                  type="radio"
-                  id="color-black-4"
-                  class="card__color-input card__color-input--black visually-hidden"
-                  name="color"
-                  value="black"
-                />
-                <label
-                  for="color-black-4"
-                  class="card__color card__color--black"
-                  >black</label
-                >
-                <input
-                  type="radio"
-                  id="color-yellow-4"
-                  class="card__color-input card__color-input--yellow visually-hidden"
-                  name="color"
-                  value="yellow"
-                  checked
-                />
-                <label
-                  for="color-yellow-4"
-                  class="card__color card__color--yellow"
-                  >yellow</label
-                >
-                <input
-                  type="radio"
-                  id="color-blue-4"
-                  class="card__color-input card__color-input--blue visually-hidden"
-                  name="color"
-                  value="blue"
-                />
-                <label
-                  for="color-blue-4"
-                  class="card__color card__color--blue"
-                  >blue</label
-                >
-                <input
-                  type="radio"
-                  id="color-green-4"
-                  class="card__color-input card__color-input--green visually-hidden"
-                  name="color"
-                  value="green"
-                />
-                <label
-                  for="color-green-4"
-                  class="card__color card__color--green"
-                  >green</label
-                >
-                <input
-                  type="radio"
-                  id="color-pink-4"
-                  class="card__color-input card__color-input--pink visually-hidden"
-                  name="color"
-                  value="pink"
-                />
-                <label
-                  for="color-pink-4"
-                  class="card__color card__color--pink"
-                  >pink</label
-                >
+                ${this._getColorButtonsMarkup(BUTTONS_COLORS)}
               </div>
             </div>
           </div>
@@ -231,7 +204,17 @@ export default class TaskEdit extends Component {
   }
 
   set onSubmit(fn) {
-    this._onSubmit = fn;
+    this._onSubmit = function () {
+      const updates = {
+        title: this._title,
+        color: this._color,
+        tags: this._tags,
+        repeatingDays: this._state.isRepeated ? this._repeatingDays : BLANK_REPEATED_DAYS,
+        dueDate: this._dueDate,
+      };
+
+      fn(updates);
+    };
   }
   set onClose(fn) {
     this._onClose = fn;
@@ -242,12 +225,53 @@ export default class TaskEdit extends Component {
     return typeof this._onSubmit === `function` && this._onSubmit();
   }
 
+  _onTitleChange(evt) {
+    this._title = evt.target.value;
+  }
+
+  _onColorChange(evt) {
+    this._element.classList.remove(colorClasses[this._color]);
+    this._element.classList.add(colorClasses[evt.target.value]);
+
+    this._color = evt.target.value;
+  }
+
+  _onChangeRepeated() {
+    this._state.isRepeated = !this._state.isRepeated;
+
+    this._element.querySelector(`.card__repeat-status`).textContent = this._state.isRepeated ? `yes` : `no`;
+
+    if (this._state.isRepeated) {
+      const repeatingDaysElement = utils.createElement(this._getRepeatingDaysMarkup());
+      this._element.querySelector(`.card__dates`).appendChild(repeatingDaysElement);
+    } else {
+      this._element.querySelector(`.card__repeat-days`).remove();
+    }
+  }
+
+  _onChangeRepeatedDay(evt) {
+    if (evt.target.classList.contains(`card__repeat-day-input`)) {
+      const dayIndex = this._repeatingDays.findIndex((it) => it[0] === evt.target.value);
+
+      this._repeatingDays[dayIndex][1] = evt.target.checked;
+      this._state.isRepeated = this._repeatingDays.some((it) => it[1] === true);
+
+      if (this._state.isRepeated && !this._element.classList.contains(`card--repeat`)) {
+        this._element.classList.add(`card--repeat`);
+      }
+      if (!this._state.isRepeated) {
+        this._element.classList.remove(`card--repeat`);
+      }
+    }
+  }
+
   _onCloseCase(evt) {
     if (
       (evt.type === `click` && this._element && !this._element.contains(evt.target))
       || (evt.type === `keydown` && evt.keyCode === KeyCodes.ESCAPE)
+      || (evt.type === `click` && evt.target === this._element.querySelector(`.card__btn--edit`))
     ) {
-      evt.stopPropagation();
+      // evt.stopPropagation();
       return typeof this._onClose === `function` && this._onClose();
     }
     return undefined;
@@ -258,12 +282,29 @@ export default class TaskEdit extends Component {
       .addEventListener(`submit`, this._onSubmitCase);
     document.body.addEventListener(`click`, this._onCloseCase, true);
     document.body.addEventListener(`keydown`, this._onCloseCase);
+    this._element.querySelector(`.card__text`).addEventListener(`change`, this._onTitleChange);
+    this._element.querySelector(`.card__colors-wrap`).addEventListener(`change`, this._onColorChange);
+    this._element.querySelector(`.card__repeat-toggle`).addEventListener(`click`, this._onChangeRepeated);
+    this._element.querySelector(`.card__dates`).addEventListener(`change`, this._onChangeRepeatedDay);
   }
 
   removeListeners() {
     this._element.querySelector(`.card__form`)
       .removeEventListener(`submit`, this._onSubmitCase);
-    document.body.removeEventListener(`click`, this._onCloseCase);
+    document.body.removeEventListener(`click`, this._onCloseCase, true);
     document.body.removeEventListener(`keydown`, this._onCloseCase);
+    this._element.querySelector(`.card__text`, this._onTitleChange);
+    this._element.querySelector(`.card__colors-wrap`).removeEventListener(`change`, this._onColorChange);
+    this._element.querySelector(`.card__repeat-toggle`).removeEventListener(`click`, this._onChangeRepeated);
+    this._element.querySelector(`.card__dates`).removeEventListener(`change`, this._onChangeRepeatedDay);
+  }
+
+
+  update(data) {
+    this._title = data.title;
+    this._tags = data.tags;
+    this._color = data.color;
+    this._repeatingDays = data.repeatingDays;
+    this._dueDate = data.dueDate;
   }
 }

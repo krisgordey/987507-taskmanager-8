@@ -1,4 +1,5 @@
 import utils from './utils.js';
+import {BLANK_REPEATED_DAYS} from './constants.js';
 
 const TAGS_LIMIT = 4;
 const WEEK_IN_MILLISECONDS = 604800000;
@@ -45,7 +46,7 @@ export default () => {
     tags: generateRandomTags(mockData.tags),
     dueDate: !isRepeating ? generateDueDate() : null,
     color: utils.getRandomArrayElement(mockData.color),
-    repeatingDays: isRepeating ? generateRepeatingDays(mockData.days) : null,
+    repeatingDays: isRepeating ? generateRepeatingDays(mockData.days) : BLANK_REPEATED_DAYS,
     isFavorite: utils.getRandomBoolean(),
     isDone: utils.getRandomBoolean(),
   };

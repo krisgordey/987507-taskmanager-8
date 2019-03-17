@@ -23,7 +23,14 @@ tasks.forEach((task) => {
     taskComponent.unrender();
   };
 
-  editTaskComponent.onSubmit = () => {
+  editTaskComponent.onSubmit = (newObject) => {
+    task.title = newObject.title;
+    task.tags = newObject.tags;
+    task.color = newObject.color;
+    task.repeatingDays = newObject.repeatingDays;
+    task.dueDate = newObject.dueDate;
+
+    taskComponent.update(task);
     taskComponent.render();
     tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
     editTaskComponent.unrender();
