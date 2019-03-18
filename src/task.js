@@ -9,7 +9,7 @@ export default class Task extends Component {
     this._dueDate = data.dueDate;
     this._tags = data.tags;
     this._picture = data.picture;
-    this._repeatingDays = data.repeatingDays;
+    this._repeatingDays = {...data.repeatingDays};
     this._isFavorite = data.isFavorite;
     this._onEdit = null;
 
@@ -30,8 +30,9 @@ export default class Task extends Component {
   }
 
   _isRepeating() {
-    return this._repeatingDays ? this._repeatingDays.some((it) => it[1] === true) : false;
+    return Object.values(this._repeatingDays).some((it) => it === true);
   }
+
   _formatAMPM(date) {
     return date.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`});
   }
@@ -164,6 +165,6 @@ export default class Task extends Component {
     this._title = data.title;
     this._tags = data.tags;
     this._color = data.color;
-    this._repeatingDays = data.repeatingDays;
+    this._repeatingDays = {...data.repeatingDays};
   }
 }

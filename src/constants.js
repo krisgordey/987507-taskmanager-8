@@ -21,4 +21,13 @@ export const MONTHS_NAMES = [`January`, `February`, `March`, `April`, `May`, `Ju
 ];
 export const BUTTONS_COLORS = [`black`, `yellow`, `blue`, `green`, `pink`];
 
-export const BLANK_REPEATED_DAYS = [[`Mo`, false], [`Tu`, false], [`We`, false], [`Th`, false], [`Fr`, false], [`Sa`, false], [`Su`, false]];
+export const BLANK_REPEATED_DAYS = {
+  Mo: false,
+  Tu: false,
+  We: false,
+  Th: false,
+  Fr: false,
+  Sa: false,
+  Su: false,
+};
+

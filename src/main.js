@@ -17,10 +17,20 @@ tasks.forEach((task) => {
 
   tasksContainer.appendChild(taskComponent.render());
 
+  let isFirstRender = true;
+
   taskComponent.onEdit = () => {
+    if (!isFirstRender) {
+      editTaskComponent.update(task);
+    }
+
     editTaskComponent.render();
     tasksContainer.replaceChild(editTaskComponent.element, taskComponent.element);
     taskComponent.unrender();
+
+    if (isFirstRender) {
+      isFirstRender = !isFirstRender;
+    }
   };
 
   editTaskComponent.onSubmit = (newObject) => {

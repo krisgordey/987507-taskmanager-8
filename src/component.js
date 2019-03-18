@@ -19,8 +19,8 @@ export default class Component {
   }
 
   render() {
-    this._element = utils.createElement(this.template);
     this.initState();
+    this._element = utils.createElement(this.template);
     this.addListeners();
     return this._element;
   }

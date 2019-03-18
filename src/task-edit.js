@@ -15,9 +15,9 @@ export default class TaskEdit extends Component {
     this._color = data.color;
     this._title = data.title;
     this._dueDate = data.dueDate;
-    this._tags = data.tags;
+    this._tags = new Set([...data.tags]);
     this._picture = data.picture;
-    this._repeatingDays = data.repeatingDays;
+    this._repeatingDays = {...data.repeatingDays};
     this._isFavorite = data.isFavorite;
 
     this._onSubmit = null;
@@ -29,29 +29,39 @@ export default class TaskEdit extends Component {
     this._onColorChange = this._onColorChange.bind(this);
     this._onChangeRepeated = this._onChangeRepeated.bind(this);
     this._onChangeRepeatedDay = this._onChangeRepeatedDay.bind(this);
+    this._onDeleteTag = this._onDeleteTag.bind(this);
+    this._onAddTag = this._onAddTag.bind(this);
   }
 
   initState() {
     this._state.isRepeated = this._isRepeating();
   }
 
+  _getTag(tag) {
+    return `<span class="card__hashtag-inner">
+        <input type="hidden" name="hashtag" value="${tag}"
+        class="card__hashtag-hidden-input"/>
+        <button type="button" class="card__hashtag-name">
+        ${tag}
+        </button>
+        <button type="button" class="card__hashtag-delete">
+        delete
+        </button>
+      </span>`;
+  }
+
   _getTags(tagsSet) {
-    return [...tagsSet].map((item) => `<span class="card__hashtag-inner">
-    <input type="hidden" name="hashtag" value="${item}"
-    class="card__hashtag-hidden-input"/>
-    <button type="button" class="card__hashtag-name">
-    ${item}
-    </button>
-    <button type="button" class="card__hashtag-delete">
-    delete
-    </button>
-    </span>`).join(``);
+    return [...tagsSet].map((item) => this._getTag(item)).join(``);
   }
 
   _getRepeatingDaysMarkup() {
-    const daysInputsMarkup = this._repeatingDays.map((day) => `<input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-${day[0]}-4" 
-      name="repeat" value="${day[0]}" ${day[1] === true ? `checked` : ``}>
-    <label class="card__repeat-day" for="repeat-${day[0]}-4">${day[0]}</label>`).join(``);
+    let daysInputsMarkup = ``;
+
+    for (let key of Object.keys(this._repeatingDays)) {
+      daysInputsMarkup += `<input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-${key}-4" 
+        name="repeat" value="${key}" ${this._repeatingDays[key] === true ? `checked` : ``}>
+      <label class="card__repeat-day" for="repeat-${key}-4">${key}</label>`;
+    }
 
     return `<fieldset class="card__repeat-days">
               <div class="card__repeat-days-inner">
@@ -77,8 +87,9 @@ export default class TaskEdit extends Component {
   }
 
   _isRepeating() {
-    return this._repeatingDays.some((it) => it[1] === true);
+    return Object.values(this._repeatingDays).some((it) => it === true);
   }
+
   _formatAMPM(date) {
     return date.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`});
   }
@@ -251,16 +262,38 @@ export default class TaskEdit extends Component {
 
   _onChangeRepeatedDay(evt) {
     if (evt.target.classList.contains(`card__repeat-day-input`)) {
-      const dayIndex = this._repeatingDays.findIndex((it) => it[0] === evt.target.value);
-
-      this._repeatingDays[dayIndex][1] = evt.target.checked;
-      this._state.isRepeated = this._repeatingDays.some((it) => it[1] === true);
+      this._repeatingDays[evt.target.value] = evt.target.checked;
+      this._state.isRepeated = Object.values(this._repeatingDays).some((it) => it === true);
 
       if (this._state.isRepeated && !this._element.classList.contains(`card--repeat`)) {
         this._element.classList.add(`card--repeat`);
       }
       if (!this._state.isRepeated) {
         this._element.classList.remove(`card--repeat`);
+      }
+    }
+  }
+
+  _onDeleteTag(evt) {
+    if (evt.target.classList.contains(`card__hashtag-delete`)) {
+      const hashtagValue = evt.target.parentNode.querySelector(`.card__hashtag-hidden-input`).value;
+      this._tags.delete(hashtagValue);
+      evt.target.closest(`.card__hashtag-inner`).remove();
+    }
+  }
+
+  _onAddTag(evt) {
+    if (evt.keyCode === KeyCodes.ENTER) {
+      evt.preventDefault();
+      const hashtags = event.target.value.split(` `)
+        .filter((it) => it.startsWith(`#`)).join(``)
+        .split(`#`)
+        .filter((it) => (it.length >= 3 && it.length <= 8));
+
+      if (hashtags[0] && !this._tags.has(hashtags[0]) && this._tags.size < 5) {
+        this._tags.add(hashtags[0]);
+        this._element.querySelector(`.card__hashtag-list`).appendChild(utils.createElement(this._getTag(hashtags[0])));
+        event.target.value = ``;
       }
     }
   }
@@ -286,6 +319,8 @@ export default class TaskEdit extends Component {
     this._element.querySelector(`.card__colors-wrap`).addEventListener(`change`, this._onColorChange);
     this._element.querySelector(`.card__repeat-toggle`).addEventListener(`click`, this._onChangeRepeated);
     this._element.querySelector(`.card__dates`).addEventListener(`change`, this._onChangeRepeatedDay);
+    this._element.querySelector(`.card__hashtag-list`).addEventListener(`click`, this._onDeleteTag);
+    this._element.querySelector(`.card__hashtag-input`).addEventListener(`keydown`, this._onAddTag);
   }
 
   removeListeners() {
@@ -297,6 +332,8 @@ export default class TaskEdit extends Component {
     this._element.querySelector(`.card__colors-wrap`).removeEventListener(`change`, this._onColorChange);
     this._element.querySelector(`.card__repeat-toggle`).removeEventListener(`click`, this._onChangeRepeated);
     this._element.querySelector(`.card__dates`).removeEventListener(`change`, this._onChangeRepeatedDay);
+    this._element.querySelector(`.card__hashtag-list`).removeEventListener(`click`, this._onDeleteTag);
+    this._element.querySelector(`.card__hashtag-input`).removeEventListener(`keydown`, this._onAddTag);
   }
 
 
@@ -304,7 +341,7 @@ export default class TaskEdit extends Component {
     this._title = data.title;
     this._tags = data.tags;
     this._color = data.color;
-    this._repeatingDays = data.repeatingDays;
+    this._repeatingDays = {...data.repeatingDays};
     this._dueDate = data.dueDate;
   }
 }

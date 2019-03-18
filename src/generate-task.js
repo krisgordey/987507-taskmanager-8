@@ -29,7 +29,10 @@ const mockData = {
   days: [`Mo`, `Tu`, `We`, `Th`, `Fr`, `Sa`, `Su`],
 };
 
-const generateRepeatingDays = (days) => days.map((day) => [day, utils.getRandomBoolean()]);
+const generateRepeatingDays = (days) => days.reduce((acc, day) => {
+  acc[day] = utils.getRandomBoolean();
+  return acc;
+}, {});
 
 const generateRandomTags = (set) => utils.makeShuffledArray([...set]).slice(0, (Math.floor(Math.random() * TAGS_LIMIT)));
 
@@ -43,7 +46,7 @@ export default () => {
   return {
     title: utils.getRandomArrayElement(mockData.title),
     picture: `http://picsum.photos/100/100?r=${Math.random()}`,
-    tags: generateRandomTags(mockData.tags),
+    tags: new Set(generateRandomTags(mockData.tags)),
     dueDate: !isRepeating ? generateDueDate() : null,
     color: utils.getRandomArrayElement(mockData.color),
     repeatingDays: isRepeating ? generateRepeatingDays(mockData.days) : BLANK_REPEATED_DAYS,
