@@ -17,13 +17,30 @@ tasks.forEach((task) => {
 
   tasksContainer.appendChild(taskComponent.render());
 
+  let isFirstRender = true;
+
   taskComponent.onEdit = () => {
+    if (!isFirstRender) {
+      editTaskComponent.update(task);
+    }
+
     editTaskComponent.render();
     tasksContainer.replaceChild(editTaskComponent.element, taskComponent.element);
     taskComponent.unrender();
+
+    if (isFirstRender) {
+      isFirstRender = !isFirstRender;
+    }
   };
 
-  editTaskComponent.onSubmit = () => {
+  editTaskComponent.onSubmit = (newObject) => {
+    task.title = newObject.title;
+    task.tags = newObject.tags;
+    task.color = newObject.color;
+    task.repeatingDays = newObject.repeatingDays;
+    task.dueDate = newObject.dueDate;
+
+    taskComponent.update(task);
     taskComponent.render();
     tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
     editTaskComponent.unrender();

@@ -1,4 +1,5 @@
 import utils from './utils.js';
+import {BLANK_REPEATED_DAYS} from './constants.js';
 
 const TAGS_LIMIT = 4;
 const WEEK_IN_MILLISECONDS = 604800000;
@@ -28,7 +29,10 @@ const mockData = {
   days: [`Mo`, `Tu`, `We`, `Th`, `Fr`, `Sa`, `Su`],
 };
 
-const generateRepeatingDays = (days) => days.map((day) => [day, utils.getRandomBoolean()]);
+const generateRepeatingDays = (days) => days.reduce((acc, day) => {
+  acc[day] = utils.getRandomBoolean();
+  return acc;
+}, {});
 
 const generateRandomTags = (set) => utils.makeShuffledArray([...set]).slice(0, (Math.floor(Math.random() * TAGS_LIMIT)));
 
@@ -42,10 +46,10 @@ export default () => {
   return {
     title: utils.getRandomArrayElement(mockData.title),
     picture: `http://picsum.photos/100/100?r=${Math.random()}`,
-    tags: generateRandomTags(mockData.tags),
+    tags: new Set(generateRandomTags(mockData.tags)),
     dueDate: !isRepeating ? generateDueDate() : null,
     color: utils.getRandomArrayElement(mockData.color),
-    repeatingDays: isRepeating ? generateRepeatingDays(mockData.days) : null,
+    repeatingDays: isRepeating ? generateRepeatingDays(mockData.days) : BLANK_REPEATED_DAYS,
     isFavorite: utils.getRandomBoolean(),
     isDone: utils.getRandomBoolean(),
   };

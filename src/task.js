@@ -9,7 +9,7 @@ export default class Task extends Component {
     this._dueDate = data.dueDate;
     this._tags = data.tags;
     this._picture = data.picture;
-    this._repeatingDays = data.repeatingDays;
+    this._repeatingDays = {...data.repeatingDays};
     this._isFavorite = data.isFavorite;
     this._onEdit = null;
 
@@ -28,15 +28,11 @@ export default class Task extends Component {
     </button>
     </span>`).join(``);
   }
-  _getRepeatingDaysMarkup(days) {
-    return days.map((day) => `<input class="visually-hidden card__repeat-day-input" type="checkbox" id="repeat-${day[0]}-4" 
-      name="repeat" value="${day[0]}" ${day[1] === true ? `checked` : ``}>
-    <label class="card__repeat-day" for="repeat-${day[0]}-4">${day[0]}</label>`).join(``);
-  }
 
   _isRepeating() {
-    return this._repeatingDays ? this._repeatingDays.some((it) => it[1] === true) : false;
+    return Object.values(this._repeatingDays).some((it) => it === true);
   }
+
   _formatAMPM(date) {
     return date.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`});
   }
@@ -108,17 +104,6 @@ export default class Task extends Component {
                     />
                   </label>
                 </fieldset>` : ``}
-    
-                <button class="card__repeat-toggle" type="button">
-                  repeat:<span class="card__repeat-status">${this._isRepeating() ? `yes` : `no`}</span>
-                </button>
-               
-                
-                ${this._isRepeating() ? `<fieldset class="card__repeat-days">
-                  <div class="card__repeat-days-inner">
-                    ${this._getRepeatingDaysMarkup(this._repeatingDays)}
-                  </div>
-                </fieldset>` : ``}
                </div>
     
               <div class="card__hashtag">
@@ -149,75 +134,6 @@ export default class Task extends Component {
                 class="card__img"
               />
             </label>
-    
-            <div class="card__colors-inner">
-              <h3 class="card__colors-title">Color</h3>
-              <div class="card__colors-wrap">
-                <input
-                  type="radio"
-                  id="color-black-4"
-                  class="card__color-input card__color-input--black visually-hidden"
-                  name="color"
-                  value="black"
-                />
-                <label
-                  for="color-black-4"
-                  class="card__color card__color--black"
-                  >black</label
-                >
-                <input
-                  type="radio"
-                  id="color-yellow-4"
-                  class="card__color-input card__color-input--yellow visually-hidden"
-                  name="color"
-                  value="yellow"
-                  checked
-                />
-                <label
-                  for="color-yellow-4"
-                  class="card__color card__color--yellow"
-                  >yellow</label
-                >
-                <input
-                  type="radio"
-                  id="color-blue-4"
-                  class="card__color-input card__color-input--blue visually-hidden"
-                  name="color"
-                  value="blue"
-                />
-                <label
-                  for="color-blue-4"
-                  class="card__color card__color--blue"
-                  >blue</label
-                >
-                <input
-                  type="radio"
-                  id="color-green-4"
-                  class="card__color-input card__color-input--green visually-hidden"
-                  name="color"
-                  value="green"
-                />
-                <label
-                  for="color-green-4"
-                  class="card__color card__color--green"
-                  >green</label
-                >
-                <input
-                  type="radio"
-                  id="color-pink-4"
-                  class="card__color-input card__color-input--pink visually-hidden"
-                  name="color"
-                  value="pink"
-                />
-                <label
-                  for="color-pink-4"
-                  class="card__color card__color--pink"
-                  >pink</label
-                >
-              </div>
-            </div>
-          </div>
-    
           <div class="card__status-btns">
             <button class="card__save" type="submit">save</button>
             <button class="card__delete" type="button">delete</button>
@@ -243,5 +159,12 @@ export default class Task extends Component {
   removeListeners() {
     this._element.querySelector(`.card__btn--edit`)
       .removeEventListener(`click`, this._onEditButtonClick);
+  }
+
+  update(data) {
+    this._title = data.title;
+    this._tags = data.tags;
+    this._color = data.color;
+    this._repeatingDays = {...data.repeatingDays};
   }
 }

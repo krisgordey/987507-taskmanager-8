@@ -19,3 +19,15 @@ export const RandomRange = {
 export const MONTHS_NAMES = [`January`, `February`, `March`, `April`, `May`, `June`,
   `July`, `August`, `September`, `October`, `November`, `December`
 ];
+export const BUTTONS_COLORS = [`black`, `yellow`, `blue`, `green`, `pink`];
+
+export const BLANK_REPEATED_DAYS = {
+  Mo: false,
+  Tu: false,
+  We: false,
+  Th: false,
+  Fr: false,
+  Sa: false,
+  Su: false,
+};
+
