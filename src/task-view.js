@@ -1,7 +1,7 @@
 import {MONTHS_NAMES} from './constants.js';
 import Component from "./component";
 
-export default class Task extends Component {
+export default class TaskView extends Component {
   constructor(data) {
     super();
     this._color = data.color;

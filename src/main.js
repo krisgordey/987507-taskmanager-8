@@ -1,46 +1,46 @@
-import {INITIAL_CARDS_LENGTH, FILTERS_DATA} from './constants.js';
+import {FILTERS_DATA} from './constants.js';
 import createFilter from './create-filter.js';
-import getTasks from './get-tasks.js';
-import Task from './task.js';
-import TaskEdit from './task-edit.js';
+import TasksModel from './tasks-model.js';
+import TaskView from './task-view.js';
+import TaskEditView from './task-edit-view.js';
 
-const filtersContainer = document.querySelector(`.filter`);
 const tasksContainer = document.querySelector(`.board__tasks`);
 
-filtersContainer.innerHTML = FILTERS_DATA.map(createFilter).join(``);
+const tasksModel = new TasksModel();
 
-const tasks = getTasks(INITIAL_CARDS_LENGTH);
+tasksModel.fetchTasks();
 
-tasks.forEach((task) => {
-  const taskComponent = new Task(task);
-  const editTaskComponent = new TaskEdit(task);
+const tasks = tasksModel.getTasks();
+
+tasks.forEach((taskData) => {
+  const taskComponent = new TaskView(taskData);
+  const editTaskComponent = new TaskEditView(taskData);
 
   tasksContainer.appendChild(taskComponent.render());
 
-  let isFirstRender = true;
+  let isUpdateNeeded = false;
 
   taskComponent.onEdit = () => {
-    if (!isFirstRender) {
-      editTaskComponent.update(task);
+    if (isUpdateNeeded) {
+      editTaskComponent.update(taskData);
+      isUpdateNeeded = false;
     }
 
     editTaskComponent.render();
     tasksContainer.replaceChild(editTaskComponent.element, taskComponent.element);
     taskComponent.unrender();
-
-    if (isFirstRender) {
-      isFirstRender = !isFirstRender;
-    }
   };
 
-  editTaskComponent.onSubmit = (newObject) => {
-    task.title = newObject.title;
-    task.tags = newObject.tags;
-    task.color = newObject.color;
-    task.repeatingDays = newObject.repeatingDays;
-    task.dueDate = newObject.dueDate;
+  editTaskComponent.onSubmit = (newData) => {
+    taskData.title = newData.title;
+    taskData.tags = newData.tags;
+    taskData.color = newData.color;
+    taskData.repeatingDays = newData.repeatingDays;
+    taskData.dueDate = newData.dueDate;
 
-    taskComponent.update(task);
+    isUpdateNeeded = true;
+
+    taskComponent.update(taskData);
     taskComponent.render();
     tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
     editTaskComponent.unrender();
@@ -52,6 +52,10 @@ tasks.forEach((task) => {
     editTaskComponent.unrender();
   };
 });
+
+const filtersContainer = document.querySelector(`.filter`);
+
+filtersContainer.innerHTML = FILTERS_DATA.map(createFilter).join(``);
 
 //
 // filtersContainer.addEventListener(`click`, function (event) {
@@ -68,5 +72,3 @@ tasks.forEach((task) => {
 //     tasksContainer.innerHTML = newTasks.map(createCard).join(``);
 //   }
 // });
-
-

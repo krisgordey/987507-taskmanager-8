@@ -9,7 +9,7 @@ const colorClasses = {
   green: `card--green`,
   pink: `card--pink`,
 };
-export default class TaskEdit extends Component {
+export default class TaskEditView extends Component {
   constructor(data) {
     super();
     this._color = data.color;

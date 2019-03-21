@@ -1,4 +1,4 @@
-export const INITIAL_CARDS_LENGTH = 7;
+export const INITIAL_CARDS_LENGTH = 12;
 export const KeyCodes = {
   ENTER: 13,
   ESCAPE: 27,
