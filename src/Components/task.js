@@ -1,7 +1,7 @@
-import {MONTHS_NAMES} from './constants.js';
-import Component from "./component";
+import Component from "../helpers/component";
+import moment from 'moment';
 
-export default class TaskView extends Component {
+export default class Task extends Component {
   constructor(data) {
     super();
     this._color = data.color;
@@ -31,10 +31,6 @@ export default class TaskView extends Component {
 
   _isRepeating() {
     return Object.values(this._repeatingDays).some((it) => it === true);
-  }
-
-  _formatAMPM(date) {
-    return date.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`});
   }
 
   _isExpiredTask(dueDate) {
@@ -72,6 +68,7 @@ export default class TaskView extends Component {
                       class="card__text"
                       placeholder="Start typing your text here..."
                       name="text"
+                      readonly
                     >${this._title}</textarea
                     >
                   </label>
@@ -89,18 +86,21 @@ export default class TaskView extends Component {
                     <input
                       class="card__date"
                       type="text"
-                      placeholder="${this._dueDate.getDate()} ${MONTHS_NAMES[this._dueDate.getMonth()]}"
+                      placeholder=""
                       name="date"
-                      value="${this._dueDate.getDate()}  ${MONTHS_NAMES[this._dueDate.getMonth()]}"
+                      value="${moment(this._dueDate).format(`DD MMMM`)}"
+                      readonly
                     />
                   </label>
                   <label class="card__input-deadline-wrap">
                     <input
                       class="card__time"
                       type="text"
-                      placeholder="${this._formatAMPM(this._dueDate)}"
+                      placeholder=""
+                      value="${moment(this._dueDate).format(`hh:mm a`)}"
                       name="time"
-                      value="${this._formatAMPM(this._dueDate)}"
+                      value=""
+                      readonly
                     />
                   </label>
                 </fieldset>` : ``}
@@ -166,5 +166,6 @@ export default class TaskView extends Component {
     this._tags = data.tags;
     this._color = data.color;
     this._repeatingDays = {...data.repeatingDays};
+    this._dueDate = data.dueDate;
   }
 }

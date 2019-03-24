@@ -1,6 +1,8 @@
-import {MONTHS_NAMES, KeyCodes, BUTTONS_COLORS, BLANK_REPEATED_DAYS} from './constants.js';
-import utils from "./utils";
-import Component from "./component";
+import {KeyCodes, BUTTONS_COLORS, BLANK_REPEATED_DAYS} from '../helpers/constants.js';
+import utils from "../helpers/utils";
+import Component from "../helpers/component";
+import flatpickr from "flatpickr";
+import moment from 'moment';
 
 const colorClasses = {
   blue: `card--blue`,
@@ -9,7 +11,7 @@ const colorClasses = {
   green: `card--green`,
   pink: `card--pink`,
 };
-export default class TaskEditView extends Component {
+export default class TaskEdit extends Component {
   constructor(data) {
     super();
     this._color = data.color;
@@ -31,10 +33,13 @@ export default class TaskEditView extends Component {
     this._onChangeRepeatedDay = this._onChangeRepeatedDay.bind(this);
     this._onDeleteTag = this._onDeleteTag.bind(this);
     this._onAddTag = this._onAddTag.bind(this);
+    this._onChangeDate = this._onChangeDate.bind(this);
+    this._onDeleteCase = this._onDeleteCase.bind(this);
   }
 
   initState() {
     this._state.isRepeated = this._isRepeating();
+    this._state.isDate = !!this._dueDate;
   }
 
   _getTag(tag) {
@@ -70,6 +75,29 @@ export default class TaskEditView extends Component {
             </fieldset>`;
   }
 
+  _getDueDateMarkup() {
+    return `<fieldset class="card__date-deadline">
+              <label class="card__input-deadline-wrap">
+                <input
+                  class="card__date"
+                  type="text"
+                  placeholder="23 September"
+                  name="date"
+                  value="${this._dueDate ? moment(this._dueDate).format(`DD MMMM`) : moment().add(1, `days`).format(`DD MMMM`)}"
+                />
+              </label>
+              <label class="card__input-deadline-wrap">
+                <input
+                  class="card__time"
+                  type="text"
+                  placeholder="11:15 PM"
+                  name="time"
+                  value="${this._dueDate ? moment(this._dueDate).format(`hh:mm a`) : moment().add(1, `days`).format(`hh:mm a`)}"
+                />
+              </label>
+            </fieldset>`;
+  }
+
   _getColorButtonsMarkup(colors) {
     return colors.map((color) => `<input
                   type="radio"
@@ -88,10 +116,6 @@ export default class TaskEditView extends Component {
 
   _isRepeating() {
     return Object.values(this._repeatingDays).some((it) => it === true);
-  }
-
-  _formatAMPM(date) {
-    return date.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`});
   }
 
   _isExpiredTask(dueDate) {
@@ -140,27 +164,7 @@ export default class TaskEditView extends Component {
                 <button class="card__date-deadline-toggle" type="button">
                   date: <span class="card__date-status">${this._dueDate ? `yes` : `no`}</span>
                 </button>
-    
-                ${this._dueDate ? `<fieldset class="card__date-deadline">
-                  <label class="card__input-deadline-wrap">
-                    <input
-                      class="card__date"
-                      type="text"
-                      placeholder="${this._dueDate.getDate()} ${MONTHS_NAMES[this._dueDate.getMonth()]}"
-                      name="date"
-                      value="${this._dueDate.getDate()}  ${MONTHS_NAMES[this._dueDate.getMonth()]}"
-                    />
-                  </label>
-                  <label class="card__input-deadline-wrap">
-                    <input
-                      class="card__time"
-                      type="text"
-                      placeholder="${this._formatAMPM(this._dueDate)}"
-                      name="time"
-                      value="${this._formatAMPM(this._dueDate)}"
-                    />
-                  </label>
-                </fieldset>` : ``}
+                ${this._dueDate ? `${this._getDueDateMarkup()}` : ``}
     
                 <button class="card__repeat-toggle" type="button">
                   repeat:<span class="card__repeat-status">${this._state.isRepeated ? `yes` : `no`}</span>
@@ -216,19 +220,34 @@ export default class TaskEditView extends Component {
 
   set onSubmit(fn) {
     this._onSubmit = function () {
+      let dueDate = null;
+
+      if (this._state.isDate) {
+        const date = this._element.querySelector(`.card__date`).value;
+        const time = this._element.querySelector(`.card__time`).value;
+        const timeStamp = moment(`${date} ${time}`, `DD MMMM hh:mm a`).valueOf();
+
+        dueDate = new Date(timeStamp);
+      }
+
       const updates = {
         title: this._title,
         color: this._color,
         tags: this._tags,
         repeatingDays: this._state.isRepeated ? this._repeatingDays : BLANK_REPEATED_DAYS,
-        dueDate: this._dueDate,
+        dueDate
       };
 
       fn(updates);
     };
   }
+
   set onClose(fn) {
     this._onClose = fn;
+  }
+
+  set onDelete(fn) {
+    this._onDelete = fn;
   }
 
   _onSubmitCase(evt) {
@@ -247,14 +266,51 @@ export default class TaskEditView extends Component {
     this._color = evt.target.value;
   }
 
+  _setUpCFlatpickr() {
+    flatpickr(this._element.querySelector(`.card__date`), {altInput: true, altFormat: `j F`, dateFormat: `j F`});
+    flatpickr(this._element.querySelector(`.card__time`), {enableTime: true, noCalendar: true, altInput: true, altFormat: `h:i K`, dateFormat: `h:i K`});
+  }
+
+  _onChangeDate() {
+    this._state.isDate = !this._state.isDate;
+    this._processDateBlock();
+
+    if (this._state.isDate && this._state.isRepeated) {
+      this._state.isRepeated = !this._state.isRepeated;
+      this._processRepeatedBlock();
+    }
+  }
+
+  _processDateBlock() {
+    this._element.querySelector(`.card__date-status`).textContent = this._state.isDate ? `yes` : `no`;
+
+    if (this._state.isDate) {
+      const dueDateElement = utils.createElement(this._getDueDateMarkup());
+      this._element.querySelector(`.card__date-deadline-toggle`).insertAdjacentElement(`afterend`, dueDateElement);
+
+      this._setUpCFlatpickr();
+
+    } else {
+      this._element.querySelector(`.card__date-deadline`).remove();
+    }
+  }
+
   _onChangeRepeated() {
     this._state.isRepeated = !this._state.isRepeated;
+    this._processRepeatedBlock();
 
+    if (this._state.isRepeated && this._state.isDate) {
+      this._state.isDate = !this._state.isDate;
+      this._processDateBlock();
+    }
+  }
+
+  _processRepeatedBlock() {
     this._element.querySelector(`.card__repeat-status`).textContent = this._state.isRepeated ? `yes` : `no`;
 
     if (this._state.isRepeated) {
       const repeatingDaysElement = utils.createElement(this._getRepeatingDaysMarkup());
-      this._element.querySelector(`.card__dates`).appendChild(repeatingDaysElement);
+      this._element.querySelector(`.card__repeat-toggle`).insertAdjacentElement(`afterend`, repeatingDaysElement);
     } else {
       this._element.querySelector(`.card__repeat-days`).remove();
     }
@@ -300,7 +356,7 @@ export default class TaskEditView extends Component {
 
   _onCloseCase(evt) {
     if (
-      (evt.type === `click` && this._element && !this._element.contains(evt.target))
+      (evt.type === `click` && this._element && !this._element.contains(evt.target) && evt.target.classList.contains(`card__btn`))
       || (evt.type === `keydown` && evt.keyCode === KeyCodes.ESCAPE)
       || (evt.type === `click` && evt.target === this._element.querySelector(`.card__btn--edit`))
     ) {
@@ -308,6 +364,10 @@ export default class TaskEditView extends Component {
       return typeof this._onClose === `function` && this._onClose();
     }
     return undefined;
+  }
+
+  _onDeleteCase() {
+    return typeof this._onDelete === `function` && this._onDelete();
   }
 
   addListeners() {
@@ -321,6 +381,12 @@ export default class TaskEditView extends Component {
     this._element.querySelector(`.card__dates`).addEventListener(`change`, this._onChangeRepeatedDay);
     this._element.querySelector(`.card__hashtag-list`).addEventListener(`click`, this._onDeleteTag);
     this._element.querySelector(`.card__hashtag-input`).addEventListener(`keydown`, this._onAddTag);
+    this._element.querySelector(`.card__delete`).addEventListener(`click`, this._onDeleteCase);
+    this._element.querySelector(`.card__date-deadline-toggle`).addEventListener(`click`, this._onChangeDate);
+
+    if (this._state.isDate) {
+      this._setUpCFlatpickr();
+    }
   }
 
   removeListeners() {
@@ -334,8 +400,9 @@ export default class TaskEditView extends Component {
     this._element.querySelector(`.card__dates`).removeEventListener(`change`, this._onChangeRepeatedDay);
     this._element.querySelector(`.card__hashtag-list`).removeEventListener(`click`, this._onDeleteTag);
     this._element.querySelector(`.card__hashtag-input`).removeEventListener(`keydown`, this._onAddTag);
+    this._element.querySelector(`.card__delete`).removeEventListener(`click`, this._onDeleteCase);
+    this._element.querySelector(`.card__date-deadline-toggle`).removeEventListener(`click`, this._onChangeDate);
   }
-
 
   update(data) {
     this._title = data.title;

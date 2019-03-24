@@ -1,74 +1,19 @@
-import {FILTERS_DATA} from './constants.js';
-import createFilter from './create-filter.js';
-import TasksModel from './tasks-model.js';
-import TaskView from './task-view.js';
-import TaskEditView from './task-edit-view.js';
+import Model from './model.js';
+import TasksView from './View/tasks-view.js';
 
-const tasksContainer = document.querySelector(`.board__tasks`);
+const model = new Model();
+model.fetchTasks();
 
-const tasksModel = new TasksModel();
+const tasksData = model.getTasks();
 
-tasksModel.fetchTasks();
+const tasksView = new TasksView(tasksData);
 
-const tasks = tasksModel.getTasks();
+tasksView.onTaskChange = (index, newData) => {
+  model.updateTask(index, newData);
+};
 
-tasks.forEach((taskData) => {
-  const taskComponent = new TaskView(taskData);
-  const editTaskComponent = new TaskEditView(taskData);
+tasksView.onTaskDelete = (index) => {
+  model.deleteTask(index);
+};
 
-  tasksContainer.appendChild(taskComponent.render());
-
-  let isUpdateNeeded = false;
-
-  taskComponent.onEdit = () => {
-    if (isUpdateNeeded) {
-      editTaskComponent.update(taskData);
-      isUpdateNeeded = false;
-    }
-
-    editTaskComponent.render();
-    tasksContainer.replaceChild(editTaskComponent.element, taskComponent.element);
-    taskComponent.unrender();
-  };
-
-  editTaskComponent.onSubmit = (newData) => {
-    taskData.title = newData.title;
-    taskData.tags = newData.tags;
-    taskData.color = newData.color;
-    taskData.repeatingDays = newData.repeatingDays;
-    taskData.dueDate = newData.dueDate;
-
-    isUpdateNeeded = true;
-
-    taskComponent.update(taskData);
-    taskComponent.render();
-    tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
-    editTaskComponent.unrender();
-  };
-
-  editTaskComponent.onClose = () => {
-    taskComponent.render();
-    tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
-    editTaskComponent.unrender();
-  };
-});
-
-const filtersContainer = document.querySelector(`.filter`);
-
-filtersContainer.innerHTML = FILTERS_DATA.map(createFilter).join(``);
-
-//
-// filtersContainer.addEventListener(`click`, function (event) {
-//   if (event.target.classList.contains(`filter__input`)) {
-//     const newTasksCount = utils.makeRandomCount(RandomRange.MIN, RandomRange.MAX);
-//     const newTasks = getTasks(newTasksCount);
-//     tasksContainer.innerHTML = newTasks.map(createCard).join(``);
-//   }
-// });
-// tasksContainer.addEventListener(`click`, function (event) {
-//   if (event.target.classList.contains(`filter__input`)) {
-//     const newTasksCount = utils.makeRandomCount(RandomRange.MIN, RandomRange.MAX);
-//     const newTasks = getTasks(newTasksCount);
-//     tasksContainer.innerHTML = newTasks.map(createCard).join(``);
-//   }
-// });
+document.querySelector(`.main`).appendChild(tasksView.render());
