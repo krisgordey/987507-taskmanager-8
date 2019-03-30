@@ -1,7 +1,7 @@
 import {KeyCodes, BUTTONS_COLORS, BLANK_REPEATED_DAYS} from '../helpers/constants.js';
-import utils from "../helpers/utils";
-import Component from "../helpers/component";
-import flatpickr from "flatpickr";
+import utils from '../helpers/utils';
+import Component from '../helpers/component';
+import flatpickr from 'flatpickr';
 import moment from 'moment';
 
 const colorClasses = {

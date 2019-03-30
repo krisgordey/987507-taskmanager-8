@@ -20,4 +20,12 @@ export default {
     return newElement.firstChild;
   },
   makeRandomCount: (max, min) => Math.floor(Math.random() * (max - min + 1)) + min,
+  getRandomColorHex: () => {
+    const hex = `0123456789ABCDEF`;
+    let color = `#`;
+    for (let i = 1; i <= 6; i++) {
+      color += hex[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  }
 };

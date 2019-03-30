@@ -1,4 +1,4 @@
-import Component from "../helpers/component";
+import Component from '../helpers/component';
 import moment from 'moment';
 
 export default class Task extends Component {

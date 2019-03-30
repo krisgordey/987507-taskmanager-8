@@ -1,12 +1,13 @@
-import Component from "../helpers/component";
+import Component from '../helpers/component';
 import Task from '../Components/task.js';
 import TaskEdit from '../Components/task-edit.js';
-import utils from "../helpers/utils";
+import utils from '../helpers/utils';
 
 export default class TasksView extends Component {
   constructor(tasks) {
     super();
     this._tasks = tasks;
+    this._renderedTasks = [];
   }
 
   get template() {
@@ -34,20 +35,22 @@ export default class TasksView extends Component {
     this._element = utils.createElement(this.template);
     this.addListeners();
 
-    this._renderTasks();
+    this.renderTasks();
 
     return this._element;
   }
 
-  _renderTasks() {
+  renderTasks(category = `all`) {
     const tasksContainer = this._element.querySelector(`.board__tasks`);
 
-    this._tasks.forEach((taskData, index, array) => {
+    this._tasks[category].forEach((taskData, index, array) => {
       if (!taskData) {
         return;
       }
 
       const taskComponent = new Task(taskData);
+      this._renderedTasks.push(taskComponent);
+
       const editTaskComponent = new TaskEdit(taskData);
 
       tasksContainer.appendChild(taskComponent.render());
@@ -63,6 +66,8 @@ export default class TasksView extends Component {
         editTaskComponent.render();
         tasksContainer.replaceChild(editTaskComponent.element, taskComponent.element);
         taskComponent.unrender();
+
+        this._renderedTasks[index] = editTaskComponent;
       };
 
       editTaskComponent.onSubmit = (function (newData) {
@@ -74,12 +79,16 @@ export default class TasksView extends Component {
         taskComponent.render();
         tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
         editTaskComponent.unrender();
+
+        this._renderedTasks[index] = taskComponent;
       }).bind(this);
 
       editTaskComponent.onClose = () => {
         taskComponent.render();
         tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
         editTaskComponent.unrender();
+
+        this._renderedTasks[index] = taskComponent;
       };
 
       editTaskComponent.onDelete = () => {
@@ -87,7 +96,31 @@ export default class TasksView extends Component {
 
         tasksContainer.removeChild(editTaskComponent.element);
         editTaskComponent.unrender();
+
+        this._renderedTasks[index] = null;
       };
     });
+  }
+
+  unrenderTasks() {
+    const tasksContainer = this._element.querySelector(`.board__tasks`);
+
+    this._renderedTasks.forEach((task) => {
+      if (!task) {
+        return;
+      }
+      tasksContainer.removeChild(task.element);
+      task.unrender();
+    });
+
+    this._renderedTasks = [];
+  }
+
+  unrender() {
+    this.unrenderTasks();
+
+    this.removeListeners();
+    this._element = null;
+    this._state = {};
   }
 }

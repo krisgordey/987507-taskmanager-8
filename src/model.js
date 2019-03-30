@@ -1,5 +1,6 @@
-import generateTask from "./helpers/generate-task";
+import generateTask from './helpers/generate-task';
 import {INITIAL_CARDS_LENGTH} from './helpers/constants.js';
+import moment from 'moment';
 
 export default class Model {
   constructor() {
@@ -11,7 +12,35 @@ export default class Model {
   }
 
   getTasks() {
-    return this._tasks;
+    const groupedTasks = {
+      all: this._tasks,
+      overdue: [],
+      today: [],
+      favorites: [],
+      repeating: [],
+      tags: [],
+      archive: [],
+    };
+
+    for (const task of this._tasks) {
+      if (task.dueDate && task.dueDate.getTime() < Date.now()) {
+        groupedTasks.overdue.push(task);
+      }
+      if (task.dueDate && moment(task.dueDate).isSame(moment(), `days`)) {
+        groupedTasks.today.push(task);
+      }
+      if (task.isFavorite) {
+        groupedTasks.favorites.push(task);
+      }
+      if (Object.values(task.repeatingDays).some((it) => it === true)) {
+        groupedTasks.repeating.push(task);
+      }
+      if (task.tags.length > 0) {
+        groupedTasks.tags.push(task);
+      }
+    }
+
+    return groupedTasks;
   }
 
   updateTask(index, data) {
