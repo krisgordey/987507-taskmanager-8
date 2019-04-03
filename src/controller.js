@@ -7,7 +7,7 @@ import API from "./helpers/api.js";
 import utils from './helpers/utils.js';
 
 // const AUTHORIZATION = `Basic dXNlckBwKRISYXNzd29yZAo=${Math.random()}`;
-const AUTHORIZATION = `Basic dXNlckBwKRISYXNzd29yZAo=99999}`;
+const AUTHORIZATION = `Basic dXNlckBwKRISYXNzd29yZAo=9999ss911`;
 const END_POINT = `https://es8-demo-srv.appspot.com/task-manager`;
 
 export default class Controller {
@@ -60,11 +60,15 @@ export default class Controller {
 
     this._tasksView.onTaskChange = async (index, newData) => {
       try {
-        await this._api.updateTask(newData);
+        const updateResult = await this._api.updateTask(newData);
         this._model.updateTask(index, newData);
+
+        return updateResult;
       } catch (err) {
         utils.notifyError(err);
       }
+
+      return undefined;
     };
 
     this._tasksView.onTaskDelete = async (index, id) => {

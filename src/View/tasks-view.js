@@ -3,6 +3,12 @@ import Task from '../Components/task.js';
 import TaskEdit from '../Components/task-edit.js';
 import utils from '../helpers/utils';
 
+// const BoardStatus = {
+//   ERROR: `Something went wrong while loading your tasks. Check your connection or try again later`,
+//   ALL_TASKS_DONE: `Congratulations, all tasks were completed! To create a new click on «add new task» button.`,
+//   LOADING: `Loading tasks...`,
+// };
+
 export default class TasksView extends Component {
   constructor(tasks) {
     super();
@@ -13,8 +19,6 @@ export default class TasksView extends Component {
   get template() {
     return `<section class="board container">
         <p class="board__no-tasks visually-hidden">
-          Congratulations, all tasks were completed! To create a new click on
-          «add new task» button.
         </p>
         <div class="board__tasks">
         </div>
@@ -43,7 +47,7 @@ export default class TasksView extends Component {
   renderTasks(category = `all`) {
     const tasksContainer = this._element.querySelector(`.board__tasks`);
 
-    this._tasks[category].forEach((taskData, index, array) => {
+    this._tasks[category].forEach((taskData, index) => {
       if (!taskData) {
         return;
       }
@@ -55,14 +59,7 @@ export default class TasksView extends Component {
 
       tasksContainer.appendChild(taskComponent.render());
 
-      let isUpdateNeeded = false;
-
       taskComponent.onEdit = () => {
-        if (isUpdateNeeded) {
-          editTaskComponent.update(array[index]);
-          isUpdateNeeded = false;
-        }
-
         editTaskComponent.render();
         tasksContainer.replaceChild(editTaskComponent.element, taskComponent.element);
         taskComponent.unrender();
@@ -71,12 +68,13 @@ export default class TasksView extends Component {
       };
 
       editTaskComponent.onSubmit = (function (newData) {
-        this._onTaskChange(index, newData).then(() => {
-          isUpdateNeeded = true;
-
-          taskComponent.update(array[index]);
+        this._onTaskChange(index, newData).then((data) => {
+          taskComponent.update(data);
           taskComponent.render();
+
           tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
+
+          editTaskComponent.update(data);
           editTaskComponent.unrender();
 
           this._renderedTasks[index] = taskComponent;

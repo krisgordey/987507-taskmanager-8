@@ -44,7 +44,6 @@ export default class API {
 
   updateTask(newData) {
     const parsedTask = ModelTask.toRaw(newData);
-    // console.log('from api!', newData, parsedTask, JSON.stringify(parsedTask))
     return this._load({
       url: `tasks/${parsedTask.id}`,
       method: Method.PUT,
