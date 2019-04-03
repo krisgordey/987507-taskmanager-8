@@ -71,16 +71,16 @@ export default class TasksView extends Component {
       };
 
       editTaskComponent.onSubmit = (function (newData) {
-        this._onTaskChange(index, newData);
+        this._onTaskChange(index, newData).then(() => {
+          isUpdateNeeded = true;
 
-        isUpdateNeeded = true;
+          taskComponent.update(array[index]);
+          taskComponent.render();
+          tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
+          editTaskComponent.unrender();
 
-        taskComponent.update(array[index]);
-        taskComponent.render();
-        tasksContainer.replaceChild(taskComponent.element, editTaskComponent.element);
-        editTaskComponent.unrender();
-
-        this._renderedTasks[index] = taskComponent;
+          this._renderedTasks[index] = taskComponent;
+        });
       }).bind(this);
 
       editTaskComponent.onClose = () => {
@@ -91,8 +91,8 @@ export default class TasksView extends Component {
         this._renderedTasks[index] = taskComponent;
       };
 
-      editTaskComponent.onDelete = () => {
-        this._onTaskDelete(index);
+      editTaskComponent.onDelete = async () => {
+        await this._onTaskDelete(index, taskData.id);
 
         tasksContainer.removeChild(editTaskComponent.element);
         editTaskComponent.unrender();

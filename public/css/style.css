@@ -27,6 +27,7 @@
 
 body {
   font-family: "HelveticaNeueCyr", Arial, sans-serif;
+  position: relative;
 }
 
 .container {
@@ -785,4 +786,21 @@ body {
   padding-top: 20px;
   display: flex;
   justify-content: space-between;
+}
+
+/*notify styles*/
+.global-notify {
+  width: 200px;
+  height: 100px;
+  background-color: rgba(159, 34, 15, 0.89);
+  border-radius: 10px;
+  padding: 20px;
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+}
+.global-notify__text {
+  color: white;
 }

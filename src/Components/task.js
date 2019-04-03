@@ -4,6 +4,7 @@ import moment from 'moment';
 export default class Task extends Component {
   constructor(data) {
     super();
+    this._id = data.id;
     this._color = data.color;
     this._title = data.title;
     this._dueDate = data.dueDate;

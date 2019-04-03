@@ -14,6 +14,8 @@ const colorClasses = {
 export default class TaskEdit extends Component {
   constructor(data) {
     super();
+    this._id = data.id;
+    this._isDone = data.isDone;
     this._color = data.color;
     this._title = data.title;
     this._dueDate = data.dueDate;
@@ -231,9 +233,13 @@ export default class TaskEdit extends Component {
       }
 
       const updates = {
+        id: this._id,
         title: this._title,
         color: this._color,
         tags: this._tags,
+        picture: this._picture,
+        isFavorite: this._isFavorite,
+        isDone: this._isDone,
         repeatingDays: this._state.isRepeated ? this._repeatingDays : BLANK_REPEATED_DAYS,
         dueDate
       };

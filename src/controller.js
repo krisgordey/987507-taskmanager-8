@@ -3,9 +3,16 @@ import TasksView from './View/tasks-view.js';
 import FiltersView from './View/filters-view.js';
 import ControlsView from './View/controls-view.js';
 import StatisticView from './View/statistic-view.js';
+import API from "./helpers/api.js";
+import utils from './helpers/utils.js';
+
+// const AUTHORIZATION = `Basic dXNlckBwKRISYXNzd29yZAo=${Math.random()}`;
+const AUTHORIZATION = `Basic dXNlckBwKRISYXNzd29yZAo=99999}`;
+const END_POINT = `https://es8-demo-srv.appspot.com/task-manager`;
 
 export default class Controller {
   constructor() {
+    this._api = null;
     this._model = null;
     this._controlsView = null;
     this._filtersView = null;
@@ -15,9 +22,15 @@ export default class Controller {
     this._tasksData = null;
   }
 
-  _init() {
-    this._model = new Model();
-    this._model.fetchTasks();
+  async _init() {
+    this._api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
+
+    try {
+      const tasks = await this._api.getTasks();
+      this._model = new Model(tasks);
+    } catch (err) {
+      utils.notifyError(`Something went wrong while loading your tasks. Check your connection or try again later`);
+    }
 
     this._tasksData = this._model.getTasks();
 
@@ -45,23 +58,33 @@ export default class Controller {
       this._tasksView.renderTasks(category);
     };
 
-    this._tasksView.onTaskChange = (index, newData) => {
-      this._model.updateTask(index, newData);
+    this._tasksView.onTaskChange = async (index, newData) => {
+      try {
+        await this._api.updateTask(newData);
+        this._model.updateTask(index, newData);
+      } catch (err) {
+        utils.notifyError(err);
+      }
     };
 
-    this._tasksView.onTaskDelete = (index) => {
-      this._model.deleteTask(index);
+    this._tasksView.onTaskDelete = async (index, id) => {
+      try {
+        await this._api.deleteTask(id);
+        this._model.deleteTask(index);
+      } catch (err) {
+        utils.notifyError(err);
+      }
     };
   }
 
   start() {
-    this._init();
+    this._init().then(() => {
+      document.querySelector(`.main`).insertAdjacentElement(`afterbegin`, this._controlsView.render());
+      document.querySelector(`.main`).appendChild(this._filtersView.render());
+      document.querySelector(`.main`).appendChild(this._tasksView.render());
 
-    document.querySelector(`.main`).insertAdjacentElement(`afterbegin`, this._controlsView.render());
-    document.querySelector(`.main`).appendChild(this._filtersView.render());
-    document.querySelector(`.main`).appendChild(this._tasksView.render());
-
-    this._currentScreen = this._tasksView;
+      this._currentScreen = this._tasksView;
+    });
   }
 
   _getScreenToRender(name) {

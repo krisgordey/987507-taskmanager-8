@@ -1,15 +1,13 @@
-import generateTask from './helpers/generate-task';
-import {INITIAL_CARDS_LENGTH} from './helpers/constants.js';
 import moment from 'moment';
 
 export default class Model {
-  constructor() {
-    this._tasks = [];
+  constructor(tasks) {
+    this._tasks = tasks;
   }
 
-  fetchTasks() {
-    this._tasks = new Array(INITIAL_CARDS_LENGTH).fill(null).map(() => generateTask());
-  }
+  // fetchTasks() {
+  //   this._tasks = new Array(INITIAL_CARDS_LENGTH).fill(null).map(() => generateTask());
+  // }
 
   getTasks() {
     const groupedTasks = {
@@ -35,7 +33,7 @@ export default class Model {
       if (Object.values(task.repeatingDays).some((it) => it === true)) {
         groupedTasks.repeating.push(task);
       }
-      if (task.tags.length > 0) {
+      if (task.tags.size > 0) {
         groupedTasks.tags.push(task);
       }
     }

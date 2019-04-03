@@ -27,5 +27,15 @@ export default {
       color += hex[Math.floor(Math.random() * 16)];
     }
     return color;
+  },
+  notifyError(errorText) {
+    const template = `<div class="global-notify"><span class="global-notify__text">${errorText}</span></div>`;
+    const errorNode = this.createElement(template);
+
+    document.body.appendChild(errorNode);
+
+    setTimeout(() => {
+      document.body.removeChild(errorNode);
+    }, 5000);
   }
 };

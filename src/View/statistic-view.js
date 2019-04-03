@@ -204,16 +204,16 @@ export default class StatisticView extends Component {
               <span class="statistic__task-found">0</span> tasks were fulfilled.
             </p>
           </div>
-          <div class="statistic__line-graphic visually-hidden">
+          <div class="statistic__line-graphic">
             <canvas class="statistic__days" width="550" height="150"></canvas>
           </div>
         </div>
 
         <div class="statistic__circle">
-          <div class="statistic__tags-wrap visually-hidden">
+          <div class="statistic__tags-wrap">
             <canvas class="statistic__tags" width="400" height="300"></canvas>
           </div>
-          <div class="statistic__colors-wrap visually-hidden">
+          <div class="statistic__colors-wrap">
             <canvas class="statistic__colors" width="400" height="300"></canvas>
           </div>
         </div>
@@ -243,6 +243,7 @@ export default class StatisticView extends Component {
     this.addListeners();
 
     this._setUpFlatpickr();
+
     return this._element;
   }
 
@@ -338,6 +339,26 @@ export default class StatisticView extends Component {
     this._colorsChart.config.data.datasets[0].data = counts;
     this._colorsChart.data.labels = labels;
     this._colorsChart.update();
+  }
+
+  unrender() {
+    super.unrender();
+
+    if (this._daysChart) {
+      this._daysChart.destroy();
+    }
+
+    if (this._tagsChart) {
+      this._tagsChart.destroy();
+    }
+
+    if (this._colorsChart) {
+      this._colorsChart.destroy();
+    }
+
+    if (this._flatpickr) {
+      this._flatpickr.destroy();
+    }
   }
 
   _onDateChanged() {
