@@ -25,6 +25,12 @@ export default class Controller {
   async _init() {
     this._api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
 
+    this._controlsView = new ControlsView();
+    // this._filtersView = new FiltersView(this._tasksData);
+    this._tasksView = new TasksView();
+    // this._statisticView = new StatisticView(this._tasksData);
+
+
     try {
       const tasks = await this._api.getTasks();
       this._model = new Model(tasks);
@@ -34,10 +40,8 @@ export default class Controller {
 
     this._tasksData = this._model.getTasks();
 
-    this._controlsView = new ControlsView();
-    this._filtersView = new FiltersView(this._tasksData);
-    this._tasksView = new TasksView(this._tasksData);
-    this._statisticView = new StatisticView(this._tasksData);
+    this._tasksView.tasks = this._tasksData;
+
 
     this._controlsView.onControl = (name) => {
       document.querySelector(`.main`).removeChild(this._currentScreen.element);
@@ -53,10 +57,10 @@ export default class Controller {
       this._currentScreen = screenToRender;
     };
 
-    this._filtersView.onFilter = (category) => {
-      this._tasksView.unrenderTasks();
-      this._tasksView.renderTasks(category);
-    };
+    // this._filtersView.onFilter = (category) => {
+    //   this._tasksView.unrenderTasks();
+    //   this._tasksView.renderTasks(category);
+    // };
 
     this._tasksView.onTaskChange = async (index, newData) => {
       try {
@@ -71,24 +75,26 @@ export default class Controller {
       return undefined;
     };
 
-    this._tasksView.onTaskDelete = async (index, id) => {
-      try {
-        await this._api.deleteTask(id);
-        this._model.deleteTask(index);
-      } catch (err) {
-        utils.notifyError(err);
-      }
+    this._tasksView.onTaskDelete = (index, id) => {
+      return this._api.deleteTask(id)
+        .then(() => {
+          return this._model.deleteTask(index);
+        })
+        .catch((err) => {
+          throw err;
+        });
     };
   }
 
   start() {
-    this._init().then(() => {
-      document.querySelector(`.main`).insertAdjacentElement(`afterbegin`, this._controlsView.render());
-      document.querySelector(`.main`).appendChild(this._filtersView.render());
-      document.querySelector(`.main`).appendChild(this._tasksView.render());
+    this._init();
 
-      this._currentScreen = this._tasksView;
-    });
+    document.querySelector(`.main`).insertAdjacentElement(`afterbegin`, this._controlsView.render());
+    // document.querySelector(`.main`).appendChild(this._filtersView.render());
+    document.querySelector(`.main`).appendChild(this._tasksView.render());
+
+    this._currentScreen = this._tasksView;
+
   }
 
   _getScreenToRender(name) {

@@ -42,6 +42,7 @@ export default class TaskEdit extends Component {
   initState() {
     this._state.isRepeated = this._isRepeating();
     this._state.isDate = !!this._dueDate;
+    this._state.isError = false;
   }
 
   _getTag(tag) {
@@ -218,6 +219,18 @@ export default class TaskEdit extends Component {
               </div>
             </form>
           </article>`;
+  }
+
+  showError() {
+    if (!this._state.isError) {
+      this._state.isError = true;
+      this._element.querySelector(`.card__inner`).classList.add(`shake`);
+    } else {
+      this._element.querySelector(`.card__inner`).classList.remove(`shake`);
+      setTimeout(() => {
+        this._element.querySelector(`.card__inner`).classList.add(`shake`);
+      }, 10);
+    }
   }
 
   set onSubmit(fn) {

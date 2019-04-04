@@ -3,17 +3,27 @@ import Task from '../Components/task.js';
 import TaskEdit from '../Components/task-edit.js';
 import utils from '../helpers/utils';
 
-// const BoardStatus = {
-//   ERROR: `Something went wrong while loading your tasks. Check your connection or try again later`,
-//   ALL_TASKS_DONE: `Congratulations, all tasks were completed! To create a new click on «add new task» button.`,
-//   LOADING: `Loading tasks...`,
-// };
+const BoardStatus = {
+  ERROR: `Something went wrong while loading your tasks. Check your connection or try again later`,
+  ALL_TASKS_DONE: `Congratulations, all tasks were completed! To create a new click on «add new task» button.`,
+  LOADING: `Loading tasks...`,
+};
 
 export default class TasksView extends Component {
-  constructor(tasks) {
+  constructor() {
     super();
-    this._tasks = tasks;
+    this._tasks = null;
     this._renderedTasks = [];
+  }
+
+  set tasks(tasks) {
+    this._tasks = tasks;
+
+    const boardNoTasks = this._element.querySelector(`.board__no-tasks`);
+    boardNoTasks.innerText = ``;
+    boardNoTasks.classList.add(`visually-hidden`);
+
+    this.renderTasks();
   }
 
   get template() {
@@ -39,7 +49,13 @@ export default class TasksView extends Component {
     this._element = utils.createElement(this.template);
     this.addListeners();
 
-    this.renderTasks();
+    if (!this._tasks) {
+      this._state.isLoading = true;
+
+      const boardNoTasks = this._element.querySelector(`.board__no-tasks`);
+      boardNoTasks.innerText = BoardStatus.LOADING;
+      boardNoTasks.classList.remove(`visually-hidden`);
+    }
 
     return this._element;
   }
@@ -89,13 +105,17 @@ export default class TasksView extends Component {
         this._renderedTasks[index] = taskComponent;
       };
 
-      editTaskComponent.onDelete = async () => {
-        await this._onTaskDelete(index, taskData.id);
+      editTaskComponent.onDelete = () => {
+        this._onTaskDelete(index, taskData.id)
+          .then(() => {
+            tasksContainer.removeChild(editTaskComponent.element);
+            editTaskComponent.unrender();
 
-        tasksContainer.removeChild(editTaskComponent.element);
-        editTaskComponent.unrender();
-
-        this._renderedTasks[index] = null;
+            this._renderedTasks[index] = null;
+          })
+          .catch(() => {
+            editTaskComponent.showError();
+          });
       };
     });
   }
