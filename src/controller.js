@@ -44,6 +44,8 @@ export default class Controller {
           this._currentScreen.unrender();
 
           const screenToRender = this._getScreenToRender(name);
+
+          console.log(screenToRender, screenToRender.render())
           document.querySelector(`.main`).appendChild(screenToRender.render());
 
           if (name === `statistic`) {

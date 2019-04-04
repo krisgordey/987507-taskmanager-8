@@ -70,6 +70,10 @@ export default class TasksView extends Component {
       boardNoTasks.classList.remove(`visually-hidden`);
     }
 
+    if (this._tasks) {
+      this.renderTasks();
+    }
+
     return this._element;
   }
 
