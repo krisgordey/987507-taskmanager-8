@@ -84,7 +84,7 @@ export default class TasksView extends Component {
       };
 
       editTaskComponent.onSubmit = (function (newData) {
-        this._onTaskChange(index, newData).then((data) => {
+        return this._onTaskChange(index, newData).then((data) => {
           taskComponent.update(data);
           taskComponent.render();
 

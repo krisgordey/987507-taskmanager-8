@@ -1,4 +1,5 @@
 import moment from 'moment';
+import {BLANK_GROUPED_TASKS} from "./helpers/constants";
 
 export default class Model {
   constructor(tasks) {
@@ -10,15 +11,9 @@ export default class Model {
   // }
 
   getTasks() {
-    const groupedTasks = {
-      all: this._tasks,
-      overdue: [],
-      today: [],
-      favorites: [],
-      repeating: [],
-      tags: [],
-      archive: [],
-    };
+    const groupedTasks = BLANK_GROUPED_TASKS;
+
+    groupedTasks.all = this._tasks;
 
     for (const task of this._tasks) {
       if (task.dueDate && task.dueDate.getTime() < Date.now()) {

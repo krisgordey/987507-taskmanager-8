@@ -26,22 +26,21 @@ export default class Controller {
     this._api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
 
     this._controlsView = new ControlsView();
-    // this._filtersView = new FiltersView(this._tasksData);
+    this._filtersView = new FiltersView();
     this._tasksView = new TasksView();
-    // this._statisticView = new StatisticView(this._tasksData);
 
 
     try {
       const tasks = await this._api.getTasks();
       this._model = new Model(tasks);
+      this._tasksData = this._model.getTasks();
+      this._statisticView = new StatisticView(this._tasksData);
     } catch (err) {
       utils.notifyError(`Something went wrong while loading your tasks. Check your connection or try again later`);
     }
 
-    this._tasksData = this._model.getTasks();
-
+    this._filtersView.tasks = this._tasksData;
     this._tasksView.tasks = this._tasksData;
-
 
     this._controlsView.onControl = (name) => {
       document.querySelector(`.main`).removeChild(this._currentScreen.element);
@@ -57,22 +56,17 @@ export default class Controller {
       this._currentScreen = screenToRender;
     };
 
-    // this._filtersView.onFilter = (category) => {
-    //   this._tasksView.unrenderTasks();
-    //   this._tasksView.renderTasks(category);
-    // };
+    this._filtersView.onFilter = (category) => {
+      this._tasksView.unrenderTasks();
+      this._tasksView.renderTasks(category);
+    };
 
-    this._tasksView.onTaskChange = async (index, newData) => {
-      try {
-        const updateResult = await this._api.updateTask(newData);
-        this._model.updateTask(index, newData);
-
-        return updateResult;
-      } catch (err) {
-        utils.notifyError(err);
-      }
-
-      return undefined;
+    this._tasksView.onTaskChange = (index, newData) => {
+      return this._api.updateTask(newData)
+        .then((updateResult) => {
+          this._model.updateTask(index, updateResult);
+          return updateResult;
+        });
     };
 
     this._tasksView.onTaskDelete = (index, id) => {
@@ -90,7 +84,7 @@ export default class Controller {
     this._init();
 
     document.querySelector(`.main`).insertAdjacentElement(`afterbegin`, this._controlsView.render());
-    // document.querySelector(`.main`).appendChild(this._filtersView.render());
+    document.querySelector(`.main`).appendChild(this._filtersView.render());
     document.querySelector(`.main`).appendChild(this._tasksView.render());
 
     this._currentScreen = this._tasksView;

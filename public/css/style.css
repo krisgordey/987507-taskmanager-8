@@ -827,3 +827,7 @@ body {
 .shake {
   animation: shake 0.6s;
 }
+
+.card--edit .card__inner.shake {
+  border: 1px solid red;
+}

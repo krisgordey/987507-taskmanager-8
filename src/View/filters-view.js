@@ -1,12 +1,23 @@
 import Component from '../helpers/component';
+import {BLANK_GROUPED_TASKS} from "../helpers/constants";
 
 export default class FiltersView extends Component {
-  constructor(tasks) {
+  constructor() {
     super();
+    this._tasks = BLANK_GROUPED_TASKS;
+  }
+
+  set tasks(tasks) {
     this._tasks = tasks;
+
+    this._element.innerHTML = this._getFiltersMarkup();
   }
 
   get template() {
+    return `<section class="main__filter filter container">${this._getFiltersMarkup()}</section>`;
+  }
+
+  _getFiltersMarkup() {
     let filtersMarkup = ``;
 
     for (const key of Object.keys(this._tasks)) {
@@ -24,7 +35,7 @@ export default class FiltersView extends Component {
       >`;
     }
 
-    return `<section class="main__filter filter container">${filtersMarkup}</section>`;
+    return filtersMarkup;
   }
 
   addListeners() {
@@ -34,6 +45,4 @@ export default class FiltersView extends Component {
   set onFilter(fn) {
     this._onFilter = fn;
   }
-
-
 }

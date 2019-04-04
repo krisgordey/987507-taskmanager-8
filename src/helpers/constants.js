@@ -31,3 +31,13 @@ export const BLANK_REPEATED_DAYS = {
   su: false,
 };
 
+export const BLANK_GROUPED_TASKS = {
+  all: [],
+  overdue: [],
+  today: [],
+  favorites: [],
+  repeating: [],
+  tags: [],
+  archive: [],
+};
+

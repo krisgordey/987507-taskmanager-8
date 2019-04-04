@@ -235,6 +235,11 @@ export default class TaskEdit extends Component {
 
   set onSubmit(fn) {
     this._onSubmit = function () {
+      if (this._state.isError) {
+        this._state.isError = false;
+        this._element.querySelector(`.card__inner`).classList.remove(`shake`);
+      }
+
       let dueDate = null;
 
       if (this._state.isDate) {
@@ -256,8 +261,13 @@ export default class TaskEdit extends Component {
         repeatingDays: this._state.isRepeated ? this._repeatingDays : BLANK_REPEATED_DAYS,
         dueDate
       };
+      this._element.querySelector(`.card__save`).setAttribute(`disabled`, true);
 
-      fn(updates);
+      fn(updates)
+        .catch(() => {
+          this.showError();
+          this._element.querySelector(`.card__save`).removeAttribute(`disabled`);
+        });
     };
   }
 
