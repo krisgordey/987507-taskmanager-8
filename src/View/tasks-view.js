@@ -20,9 +20,7 @@ export default class TasksView extends Component {
   set tasks(tasks) {
     this._tasks = tasks;
     const boardNoTasks = this._element.querySelector(`.board__no-tasks`);
-    console.log(this._tasks)
     if (this._tasks.all.length === 0) {
-      console.log('kik')
       boardNoTasks.innerText = BOARDSTATUS.ALL_TASKS_DONE;
       return;
     }
@@ -33,7 +31,7 @@ export default class TasksView extends Component {
     this.renderTasks();
   }
 
-  onLoadError(err) {
+  onLoadError() {
     const boardNoTasks = this._element.querySelector(`.board__no-tasks`);
     boardNoTasks.innerText = BOARDSTATUS.ERROR;
     boardNoTasks.classList.remove(`visually-hidden`);
