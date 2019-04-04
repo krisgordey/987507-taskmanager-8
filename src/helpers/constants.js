@@ -3,6 +3,11 @@ export const KeyCodes = {
   ENTER: 13,
   ESCAPE: 27,
 };
+export const BOARDSTATUS = {
+  ERROR: `Something went wrong while loading your tasks. Check your connection or try again later`,
+  ALL_TASKS_DONE: `Congratulations, all tasks were completed! To create a new click on «add new task» button.`,
+  LOADING: `Loading tasks...`,
+};
 export const FILTERS_DATA = [
   {name: `all`, amount: 115},
   {name: `overdue`, amount: 0},

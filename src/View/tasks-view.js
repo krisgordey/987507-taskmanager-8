@@ -2,12 +2,13 @@ import Component from '../helpers/component';
 import Task from '../Components/task.js';
 import TaskEdit from '../Components/task-edit.js';
 import utils from '../helpers/utils';
+import {BOARDSTATUS} from '../helpers/constants.js';
 
-const BoardStatus = {
-  ERROR: `Something went wrong while loading your tasks. Check your connection or try again later`,
-  ALL_TASKS_DONE: `Congratulations, all tasks were completed! To create a new click on «add new task» button.`,
-  LOADING: `Loading tasks...`,
-};
+// const BoardStatus = {
+//   ERROR: `Something went wrong while loading your tasks. Check your connection or try again later`,
+//   ALL_TASKS_DONE: `Congratulations, all tasks were completed! To create a new click on «add new task» button.`,
+//   LOADING: `Loading tasks...`,
+// };
 
 export default class TasksView extends Component {
   constructor() {
@@ -18,12 +19,24 @@ export default class TasksView extends Component {
 
   set tasks(tasks) {
     this._tasks = tasks;
-
     const boardNoTasks = this._element.querySelector(`.board__no-tasks`);
+    console.log(this._tasks)
+    if (this._tasks.all.length === 0) {
+      console.log('kik')
+      boardNoTasks.innerText = BOARDSTATUS.ALL_TASKS_DONE;
+      return;
+    }
+
     boardNoTasks.innerText = ``;
     boardNoTasks.classList.add(`visually-hidden`);
 
     this.renderTasks();
+  }
+
+  onLoadError(err) {
+    const boardNoTasks = this._element.querySelector(`.board__no-tasks`);
+    boardNoTasks.innerText = BOARDSTATUS.ERROR;
+    boardNoTasks.classList.remove(`visually-hidden`);
   }
 
   get template() {
@@ -53,7 +66,7 @@ export default class TasksView extends Component {
       this._state.isLoading = true;
 
       const boardNoTasks = this._element.querySelector(`.board__no-tasks`);
-      boardNoTasks.innerText = BoardStatus.LOADING;
+      boardNoTasks.innerText = BOARDSTATUS.LOADING;
       boardNoTasks.classList.remove(`visually-hidden`);
     }
 
@@ -112,6 +125,16 @@ export default class TasksView extends Component {
             editTaskComponent.unrender();
 
             this._renderedTasks[index] = null;
+
+            if (this._tasks.all.every((it) => it === null)) {
+              const boardTasks = this._element.querySelector(`.board__tasks`);
+              const boardNoTasks = this._element.querySelector(`.board__no-tasks`);
+
+              boardTasks.classList.add(`visually-hidden`);
+              boardNoTasks.classList.remove(`visually-hidden`);
+
+              boardNoTasks.innerText = BOARDSTATUS.ALL_TASKS_DONE;
+            }
           })
           .catch(() => {
             editTaskComponent.showError();

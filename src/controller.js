@@ -4,10 +4,10 @@ import FiltersView from './View/filters-view.js';
 import ControlsView from './View/controls-view.js';
 import StatisticView from './View/statistic-view.js';
 import API from "./helpers/api.js";
-import utils from './helpers/utils.js';
+import {BOARDSTATUS} from './helpers/constants.js';
 
 // const AUTHORIZATION = `Basic dXNlckBwKRISYXNzd29yZAo=${Math.random()}`;
-const AUTHORIZATION = `Basic dXNlckBwKRISYXNzd29yZAo=9999ss911`;
+const AUTHORIZATION = `Basic dXNlckBwKRISYXNzd29yZAo=9999sss9dds11`;
 const END_POINT = `https://es8-demo-srv.appspot.com/task-manager`;
 
 export default class Controller {
@@ -22,62 +22,63 @@ export default class Controller {
     this._tasksData = null;
   }
 
-  async _init() {
+  _init() {
     this._api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
 
     this._controlsView = new ControlsView();
     this._filtersView = new FiltersView();
     this._tasksView = new TasksView();
 
+    this._api.getTasks()
+      .then((tasks) => {
+        this._model = new Model(tasks);
+        this._tasksData = this._model.getTasks();
 
-    try {
-      const tasks = await this._api.getTasks();
-      this._model = new Model(tasks);
-      this._tasksData = this._model.getTasks();
-      this._statisticView = new StatisticView(this._tasksData);
-    } catch (err) {
-      utils.notifyError(`Something went wrong while loading your tasks. Check your connection or try again later`);
-    }
+        this._filtersView.tasks = this._tasksData;
+        this._tasksView.tasks = this._tasksData;
 
-    this._filtersView.tasks = this._tasksData;
-    this._tasksView.tasks = this._tasksData;
+        this._statisticView = new StatisticView(this._tasksData);
 
-    this._controlsView.onControl = (name) => {
-      document.querySelector(`.main`).removeChild(this._currentScreen.element);
-      this._currentScreen.unrender();
+        this._controlsView.onControl = (name) => {
+          document.querySelector(`.main`).removeChild(this._currentScreen.element);
+          this._currentScreen.unrender();
 
-      const screenToRender = this._getScreenToRender(name);
-      document.querySelector(`.main`).appendChild(screenToRender.render());
+          const screenToRender = this._getScreenToRender(name);
+          document.querySelector(`.main`).appendChild(screenToRender.render());
 
-      if (name === `statistic`) {
-        screenToRender.updateCharts();
-      }
+          if (name === `statistic`) {
+            screenToRender.updateCharts();
+          }
 
-      this._currentScreen = screenToRender;
-    };
+          this._currentScreen = screenToRender;
+        };
 
-    this._filtersView.onFilter = (category) => {
-      this._tasksView.unrenderTasks();
-      this._tasksView.renderTasks(category);
-    };
+        this._filtersView.onFilter = (category) => {
+          this._tasksView.unrenderTasks();
+          this._tasksView.renderTasks(category);
+        };
 
-    this._tasksView.onTaskChange = (index, newData) => {
-      return this._api.updateTask(newData)
-        .then((updateResult) => {
-          this._model.updateTask(index, updateResult);
-          return updateResult;
-        });
-    };
+        this._tasksView.onTaskChange = (index, newData) => {
+          return this._api.updateTask(newData)
+            .then((updateResult) => {
+              this._model.updateTask(index, updateResult);
+              return updateResult;
+            });
+        };
 
-    this._tasksView.onTaskDelete = (index, id) => {
-      return this._api.deleteTask(id)
-        .then(() => {
-          return this._model.deleteTask(index);
-        })
-        .catch((err) => {
-          throw err;
-        });
-    };
+        this._tasksView.onTaskDelete = (index, id) => {
+          return this._api.deleteTask(id)
+            .then(() => {
+              return this._model.deleteTask(index);
+            })
+            .catch((err) => {
+              throw err;
+            });
+        };
+      })
+      .catch((err) => {
+        this._tasksView.onLoadError(err);
+      });
   }
 
   start() {
